@@ -8,3 +8,10 @@ services:
 
     Leadin\SurvivalKitBundle\DependencyInjection\Facade:
         public: true
+
+    Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClient:
+        public: true
+        autowire: true
+
+    Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClientResponse:
+        public: true

@@ -1,0 +1,10 @@
+parameters:
+    # nothing to declare
+
+services:
+    Leadin\SurvivalKitBundle\Logging\Logger:
+        autoconfigure: true
+        public: true
+
+    Leadin\SurvivalKitBundle\DependencyInjection\Facade:
+        public: true

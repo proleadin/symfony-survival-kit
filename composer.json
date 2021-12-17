@@ -1,0 +1,19 @@
+{
+    "name": "leadin/symfony-survival-kit",
+    "license": "proprietary",
+    "type": "symfony-bundle",
+    "description": "Symfony survival kit",
+    "require": {
+        "php": "^7.4",
+        "symfony/flex": "^1.0",
+        "symfony/framework-bundle": "^4.1",
+        "sensio/framework-extra-bundle": "^5.2",
+        "symfony/monolog-bundle": "^3.6",
+        "myclabs/php-enum": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Leadin\\SurvivalKitBundle\\": "src/"
+        }
+    }
+}

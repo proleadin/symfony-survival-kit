@@ -17,4 +17,5 @@ class LogContext extends Enum
     protected const DEFAULT  = 'default';
     protected const MESSAGE  = 'message';
     protected const TRACKING = 'tracking';
+    protected const SECURITY = 'security';
 }

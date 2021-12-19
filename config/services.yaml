@@ -9,6 +9,11 @@ services:
     Leadin\SurvivalKitBundle\DependencyInjection\Facade:
         public: true
 
+    Leadin\SurvivalKitBundle\EventSubscriber\AuthenticationHeaderSubscriber:
+        public: true
+        tags:
+            - { name: kernel.event_subscriber }
+
     Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClient:
         public: true
         autowire: true

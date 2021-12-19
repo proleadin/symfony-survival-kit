@@ -11,6 +11,8 @@ So there are a few rules:
 - Tools provided must be independent as much as possible
 - Limit the number of external dependencies
 - Keep compatibility as much as possible and plan smooth migrations
+- Services should not use autowiring or autoconfiguration. Instead, all services should be defined explicitly
+- Services not meant to be used by the application directly, should be defined as private
 
 ## This bundle provides the following:
 ### Basic tools

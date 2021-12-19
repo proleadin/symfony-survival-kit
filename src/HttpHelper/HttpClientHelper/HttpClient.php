@@ -75,8 +75,8 @@ class HttpClient
         }
 
         $sLogLevel = $bError ? 'error' : 'debug';
-        $sLogMessage = $bError ? 'Error while requesting %s %d - %s' : 'Response of requesting %s %d - %s';
-        Logger::$sLogLevel(\sprintf($sLogMessage, $sMethod, $iHttpCode, $sUrl), LogContext::DEFAULT(), [
+        $sLogMessage = $bError ? 'Error while requesting %s %s - %d' : 'Response of requesting %s %s - %d';
+        Logger::$sLogLevel(\sprintf($sLogMessage, $sMethod, $sUrl, $iHttpCode), LogContext::DEFAULT(), [
             'request' => $aRequestOptions,
             'response' => $sResponseBody
         ]);

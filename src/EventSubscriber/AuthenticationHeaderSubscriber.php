@@ -21,10 +21,13 @@ class AuthenticationHeaderSubscriber implements EventSubscriberInterface
 {
     private const BEARER_TOKEN_TYPE = 'Bearer';
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::CONTROLLER => 'onKernelController',
+            KernelEvents::CONTROLLER => ['onKernelController', 100]
         ];
     }
 

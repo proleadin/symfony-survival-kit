@@ -17,10 +17,7 @@ class HttpClient
     
     private ClientInterface $httpClient;
 
-    /**
-     * @required
-     */
-    public function init(ClientInterface $httpClient): void
+    public function setHttpClient(ClientInterface $httpClient): void
     {
         $this->httpClient = $httpClient;
     }

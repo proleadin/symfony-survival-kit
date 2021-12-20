@@ -9,7 +9,8 @@
         "symfony/framework-bundle": "^4.1",
         "sensio/framework-extra-bundle": "^5.2",
         "symfony/monolog-bundle": "^3.6",
-        "myclabs/php-enum": "^1.7"
+        "myclabs/php-enum": "^1.7",
+        "guzzlehttp/guzzle": "^6.0"
     },
     "autoload": {
         "psr-4": {

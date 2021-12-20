@@ -2,9 +2,29 @@ parameters:
     # nothing to declare
 
 services:
+    GuzzleHttp\Client: ~
+    GuzzleHttp\ClientInterface: '@GuzzleHttp\Client'
+
     Leadin\SurvivalKitBundle\Logging\Logger:
-        autoconfigure: true
         public: true
+        tags:
+            - { name: !php/const Leadin\SurvivalKitBundle\DependencyInjection\Facade::TAG }
 
     Leadin\SurvivalKitBundle\DependencyInjection\Facade:
+        public: true
+
+    Leadin\SurvivalKitBundle\EventSubscriber\AuthenticationHeaderSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    Leadin\SurvivalKitBundle\EventSubscriber\RequestBodySubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClient:
+        public: true
+        calls:
+            - [setHttpClient, ['@GuzzleHttp\Client']]
+
+    Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClientResponse:
         public: true

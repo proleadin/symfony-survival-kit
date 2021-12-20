@@ -26,6 +26,8 @@ class SurvivalKitBundle extends Bundle
     {
         parent::boot();
 
-        Facade::setFacadesContainer($this->container->get(Facade::CONTAINER));
+        if ($this->container->has(Facade::CONTAINER)) {
+            Facade::setFacadesContainer($this->container->get(Facade::CONTAINER));
+        }
     }
 }

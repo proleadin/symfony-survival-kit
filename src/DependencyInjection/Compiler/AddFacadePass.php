@@ -16,7 +16,7 @@ class AddFacadePass implements CompilerPassInterface
     {
         $aFacades = [];
         if ($container->has(Facade::class)) {
-            $aTaggedServices = $container->findTaggedServiceIds(Facade::TAG, $container);
+            $aTaggedServices = $container->findTaggedServiceIds(Facade::TAG);
             foreach ($aTaggedServices as $sServiceId => $aTags) {
                 $sClass = $container->getDefinition($sServiceId)->getClass() ? : $sServiceId;
                 $reflectionFacade = new \ReflectionMethod($sClass, 'getServiceId');

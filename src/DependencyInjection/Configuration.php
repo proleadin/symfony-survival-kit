@@ -9,8 +9,6 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('survival_kit');
-        return $treeBuilder;
+        return new TreeBuilder('survival_kit');
     }
 }

@@ -10,7 +10,7 @@
         "sensio/framework-extra-bundle": "6.1.*",
         "symfony/monolog-bundle": "3.*",
         "myclabs/php-enum": "^1.7",
-        "guzzlehttp/guzzle": "7.0.*"
+        "guzzlehttp/guzzle": "^6.0|^7.0"
     },
     "autoload": {
         "psr-4": {

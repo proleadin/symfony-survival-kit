@@ -29,39 +29,40 @@ class HttpClient
     /**
      * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function get(string $sUrl, array $aRequestOptions, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function get(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_GET, $sUrl, $aRequestOptions, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_GET, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
     /**
      * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function post(string $sUrl, array $aRequestOptions, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function post(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_POST, $sUrl, $aRequestOptions, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_POST, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
     /**
      * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function put(string $sUrl, array $aRequestOptions, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function put(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_PUT, $sUrl, $aRequestOptions, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_PUT, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
     /**
      * @throws GuzzleHttp\Exception\GuzzleException
      */
-    public function patch(string $sUrl, array $aRequestOptions, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function patch(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_PATCH, $sUrl, $aRequestOptions, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_PATCH, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
     private function request(
         string $sMethod,
         string $sUrl,
         array $aRequestOptions,
+        string $sAction,
         LogContext $logContext,
         array $aLogMetadata = []
     ): ResponseInterface
@@ -72,12 +73,12 @@ class HttpClient
 
             $sResponseBody = $response->getBody()->getContents();
             $response->getBody()->rewind();
-            Logger::debug(\sprintf('Response of requesting %s %s - %d', $sMethod, $sUrl, $response->getStatusCode()), $logContext, \array_merge($aLogMetadata, [
+            Logger::debug("$sAction : succeed requesting $sMethod $sUrl - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
                 'response' => $sResponseBody,
                 'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
             ]));
         } catch (GuzzleException $e) {
-            Logger::error(\sprintf('Error while requesting %s %s - %d', $sMethod, $sUrl, $e->getCode()), $logContext, \array_merge($aLogMetadata, [
+            Logger::debug("$sAction : error while requesting $sMethod $sUrl - {$e->getCode()}", $logContext, \array_merge($aLogMetadata, [
                 'response' => $e->getMessage(),
                 'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
             ]));

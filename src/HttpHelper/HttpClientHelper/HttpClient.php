@@ -84,6 +84,10 @@ class HttpClient
             ]));
 
             throw $e;
+        } catch (\Throwable $e) {
+            Logger::exception("$sAction : error while requesting $sMethod $sUrl", $logContext, $e, $aLogMetadata);
+
+            throw $e;
         }
 
         return $response;

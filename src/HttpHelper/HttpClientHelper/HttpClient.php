@@ -27,7 +27,7 @@ class HttpClient
     }
 
     /**
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws HttpClientException
      */
     public function get(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
@@ -35,7 +35,7 @@ class HttpClient
     }
 
     /**
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws HttpClientException
      */
     public function post(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
@@ -43,7 +43,7 @@ class HttpClient
     }
 
     /**
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws HttpClientException
      */
     public function put(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
@@ -51,7 +51,7 @@ class HttpClient
     }
 
     /**
-     * @throws GuzzleHttp\Exception\GuzzleException
+     * @throws HttpClientException
      */
     public function patch(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
@@ -78,12 +78,22 @@ class HttpClient
                 'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
             ]));
         } catch (GuzzleException $e) {
-            Logger::debug("$sAction : error while requesting $sMethod $sUrl - {$e->getCode()}", $logContext, \array_merge($aLogMetadata, [
-                'response' => $e->getMessage(),
+            if (\method_exists($e, 'hasResponse') && $e->hasResponse()) {
+                $response = $e->getResponse();
+                $sMessage = $response->getBody()->getContents();
+                $iHttpCode = $response->getStatusCode();
+            } else {
+                $sMessage = $e->getMessage();
+                $iHttpCode = $e->getCode();
+            }
+
+            Logger::error("$sAction : error while requesting $sMethod $sUrl - $iHttpCode", $logContext, \array_merge($aLogMetadata, [
+                'response' => $sMessage,
                 'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
             ]));
 
-            throw $e;
+            throw new HttpClientException($sMessage, $iHttpCode);
+
         } catch (\Throwable $e) {
             Logger::exception("$sAction : error while requesting $sMethod $sUrl", $logContext, $e, $aLogMetadata);
 

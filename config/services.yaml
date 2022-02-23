@@ -28,3 +28,12 @@ services:
 
     Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClientResponse:
         public: true
+
+    Leadin\SurvivalKitBundle\Controller\DeploymentController:
+        public: true
+        arguments:
+            $eventDispatcher: '@event_dispatcher'
+        tags:
+            - { name: container.service_subscriber }
+        calls:
+            - [setContainer, ['@service_container']]

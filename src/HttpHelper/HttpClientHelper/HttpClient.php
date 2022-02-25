@@ -7,14 +7,18 @@ use Leadin\SurvivalKitBundle\Logging\LogContext;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Wrapper for a GuzzleHttp Client
+ * @see For the request options https://docs.guzzlephp.org/en/stable/request-options.html
+ */
 class HttpClient
 {
     private const DEFAULT_REQUEST_TIMEOUT = 30.00;
-    
+
     private ClientInterface $httpClient;
 
     public function setHttpClient(ClientInterface $httpClient): void
@@ -22,65 +26,102 @@ class HttpClient
         $this->httpClient = $httpClient;
     }
 
-    public function post(string $sUrl, array $aRequestOptions, float $fRequestTimeout = null): HttpClientResponse
+    /**
+     * @throws HttpClientException
+     */
+    public function get(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_POST, $sUrl, $aRequestOptions, $fRequestTimeout);
+        return $this->request(Request::METHOD_GET, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
-    public function get(string $sUrl, array $aRequestOptions, float $fRequestTimeout = null): HttpClientResponse
+    /**
+     * @throws HttpClientException
+     */
+    public function post(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_GET, $sUrl, $aRequestOptions, $fRequestTimeout);
+        return $this->request(Request::METHOD_POST, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
-    public function patch(string $sUrl, array $aRequestOptions, float $fRequestTimeout = null): HttpClientResponse
+    /**
+     * @throws HttpClientException
+     */
+    public function put(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_PATCH, $sUrl, $aRequestOptions, $fRequestTimeout);
+        return $this->request(Request::METHOD_PUT, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
-    public function logRequestAndResponse(LogContext $logContext, string $sUrl, string $sAction, IResponse $response, IRequest $request = null, array $aLogMetadata = []): void
+    /**
+     * @throws HttpClientException
+     */
+    public function patch(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
     {
-        $aLogMetadata['url'] = $sUrl;
-        $aLogMetadata['httpCode'] = $response->getHttpCode();
-        $aLogMetadata['response'] = $response->getResponse();
-        $request && $aLogMetadata['request'] = $request->getBody();
-
-        if (!$response->isSuccess()) {
-            Logger::error("$sAction has failed: {$response->getErrorMessage()}", $logContext, $aLogMetadata);
-        } else {
-            Logger::debug("$sAction succeed", $logContext, $aLogMetadata);
-        }
+        return $this->request(Request::METHOD_PATCH, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
     }
 
-    private function request(string $sMethod, string $sUrl, array $aRequestOptions, $fRequestTimeout = null): HttpClientResponse
+    private function request(
+        string $sMethod,
+        string $sUrl,
+        array $aRequestOptions,
+        string $sAction,
+        LogContext $logContext,
+        array $aLogMetadata = []
+    ): ResponseInterface
     {
-        $bError = true;
         try {
-            $aRequestOptions[RequestOptions::TIMEOUT] = $fRequestTimeout ? : self::DEFAULT_REQUEST_TIMEOUT;
+            $aRequestOptions[RequestOptions::TIMEOUT] = $aRequestOptions[RequestOptions::TIMEOUT] ?? self::DEFAULT_REQUEST_TIMEOUT;
             $response = $this->httpClient->request($sMethod, $sUrl, $aRequestOptions);
+
             $sResponseBody = $response->getBody()->getContents();
-            $iHttpCode = $response->getStatusCode();
-            $bError = false;
-        } catch (ConnectException $e) {
-            $sResponseBody = "ConnectException: {$e->getMessage()}";
-            $iHttpCode = 0;
+            $response->getBody()->rewind();
+            Logger::debug("$sAction : succeed requesting $sMethod $sUrl - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
+                'response' => $sResponseBody,
+                'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
+            ]));
         } catch (GuzzleException $e) {
             if (\method_exists($e, 'hasResponse') && $e->hasResponse()) {
                 $response = $e->getResponse();
-                $sResponseBody = $response->getBody()->getContents();
+                $sMessage = $response->getBody()->getContents();
                 $iHttpCode = $response->getStatusCode();
             } else {
-                $sResponseBody = "GuzzleException: {$e->getMessage()}";
-                $iHttpCode = 0;
+                $sMessage = $e->getMessage();
+                $iHttpCode = $e->getCode();
+            }
+
+            Logger::error("$sAction : error while requesting $sMethod $sUrl - $iHttpCode", $logContext, \array_merge($aLogMetadata, [
+                'response' => $sMessage,
+                'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
+            ]));
+
+            throw new HttpClientException($sMessage, $iHttpCode);
+
+        } catch (\Throwable $e) {
+            Logger::exception("$sAction : error while requesting $sMethod $sUrl", $logContext, $e, $aLogMetadata);
+
+            throw $e;
+        }
+
+        return $response;
+    }
+
+    private function hideRequestSecrets(array $aRequestOptions): array
+    {
+        // hide authorization header
+        if (isset($aRequestOptions[RequestOptions::HEADERS]['Authorization'])) {
+            $aRequestOptions[RequestOptions::HEADERS]['Authorization'] = '*****';
+        }
+
+        // hide basic authentication credentials
+        if (isset($aRequestOptions[RequestOptions::AUTH])) {
+            $aRequestOptions[RequestOptions::AUTH] = '*****';
+        }
+
+        // hide client certificate password
+        if (isset($aRequestOptions[RequestOptions::CERT]) && \is_array($aRequestOptions[RequestOptions::CERT])) {
+            if (isset($aRequestOptions[RequestOptions::CERT][1])) {
+                $aRequestOptions[RequestOptions::CERT][1] = '*****';
             }
         }
 
-        $sLogLevel = $bError ? 'error' : 'debug';
-        $sLogMessage = $bError ? 'Error while requesting %s %s - %d' : 'Response of requesting %s %s - %d';
-        Logger::$sLogLevel(\sprintf($sLogMessage, $sMethod, $sUrl, $iHttpCode), LogContext::DEFAULT(), [
-            'request' => $aRequestOptions,
-            'response' => $sResponseBody
-        ]);
-
-        return new HttpClientResponse($sResponseBody, $iHttpCode);
+        return $aRequestOptions;
     }
 }

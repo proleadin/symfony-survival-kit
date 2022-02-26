@@ -5,9 +5,9 @@ namespace Leadin\SurvivalKitBundle\Event;
 final class SurvivalKitEvents
 {
     /**
-     * Called when github webhook is processed.
+     * Called when received deployment request from github webhook.
      *
-     * @Event("Leadin\SurvivalKitBundle\Event\DeploymentEvent")
+     * @Event("Leadin\SurvivalKitBundle\Event\GithubDeploymentEvent")
      */
-    public const DEPLOYMENT = 'survival_kit.deployment';
+    public const GITHUB_DEPLOYMENT = 'survival_kit.github_deployment';
 }

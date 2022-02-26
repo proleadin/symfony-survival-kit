@@ -29,10 +29,22 @@ services:
     Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClientResponse:
         public: true
 
+    Leadin\SurvivalKitBundle\Deployment\Github\PullRequest:
+        public: true
+
+    Leadin\SurvivalKitBundle\Deployment\DeploymentCommand:
+        public: true
+
+    Leadin\SurvivalKitBundle\Deployment\Github\GithubDeploymentService:
+        public: true
+        calls:
+            - [setDeploymentCommand, ['@Leadin\SurvivalKitBundle\Deployment\DeploymentCommand']]
+
     Leadin\SurvivalKitBundle\Controller\DeploymentController:
         public: true
         arguments:
             $eventDispatcher: '@event_dispatcher'
+            $githubDeploymentService: '@Leadin\SurvivalKitBundle\Deployment\Github\GithubDeploymentService'
         tags:
             - { name: container.service_subscriber }
         calls:

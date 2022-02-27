@@ -5,6 +5,7 @@ namespace Leadin\SurvivalKitBundle\Deployment;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -13,20 +14,25 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
  */
 class DeploymentCommand
 {
-    protected string $sProjectDir = "/code";
+    protected ParameterBagInterface $parameterBag;
+    protected string $sProjectDir;
 
-    public function setProjectDir(string $sProjectDir)
+    public function __construct(ParameterBagInterface $parameterBag)
     {
-        $this->sProjectDir = $sProjectDir;
+        $this->parameterBag = $parameterBag;
+        $this->sProjectDir = $parameterBag->get('kernel.project_dir');
     }
 
     /**
      * @throws ProcessFailedException
      */
-    public function gitPull(string $sGitRemote, string $sBranch): void
+    public function gitPull(): void
     {
-        $process = Process::fromShellCommandline("git pull $sGitRemote $sBranch", "/");
-        $this->execute($process, "Git pull $sGitRemote $sBranch");
+        $sGitRemote = $this->parameterBag->get('survival_kit.deployment.git_remote');
+        $sGitBaseBranch = $this->parameterBag->get('survival_kit.deployment.git_base_branch');
+
+        $process = Process::fromShellCommandline("git pull $sGitRemote $sGitBaseBranch", "/");
+        $this->execute($process, "Git pull $sGitRemote $sGitBaseBranch");
     }
 
     /**

@@ -12,6 +12,7 @@ use Leadin\SurvivalKitBundle\Logging\Logger;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,13 +24,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DeploymentController extends AbstractController implements ITokenAuthenticatedController
 {
-    protected EventDispatcherInterface $eventDispatcher;
-    protected IGithubDeploymentService $githubDeploymentService;
+    private EventDispatcherInterface $eventDispatcher;
+    private IGithubDeploymentService $githubDeploymentService;
+    private ParameterBagInterface $parameterBag;
 
-    public function __construct(EventDispatcherInterface $eventDispatcher, IGithubDeploymentService $githubDeploymentService)
-    {
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        IGithubDeploymentService $githubDeploymentService,
+        ParameterBagInterface $parameterBag
+    ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->githubDeploymentService = $githubDeploymentService;
+        $this->parameterBag = $parameterBag;
     }
 
     /**
@@ -77,8 +83,6 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
      */
     public function getToken() : string
     {
-        // TODO
-        // return $this->getParameter('survival_kit.deployment_secret_token');
-        return 'to-be-changed-in-prod';
+        return $this->parameterBag->get('survival_kit.deployment.secret_token');
     }
 }

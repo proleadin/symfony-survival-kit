@@ -12,6 +12,9 @@ class GithubDeploymentService implements IGithubDeploymentService
 {
     protected DeploymentCommand $deploymentCommand;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setDeploymentCommand(DeploymentCommand $deploymentCommand): self
     {
         $this->deploymentCommand = $deploymentCommand;
@@ -35,8 +38,7 @@ class GithubDeploymentService implements IGithubDeploymentService
 
     protected function executeDeploymentCommands(PullRequest $pullRequest): void
     {
-        // TODO get from config
-        $this->deploymentCommand->gitPull('upstream', 'master');
+        $this->deploymentCommand->gitPull();
 
         $pullRequest->hasComposerInstallLabel() && $this->deploymentCommand->composerInstall();
 

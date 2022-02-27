@@ -1,5 +1,6 @@
 parameters:
-    # nothing to declare
+    survival_kit.deployment.git_remote: 'origin'
+    survival_kit.deployment.git_base_branch: 'master'
 
 services:
     GuzzleHttp\Client: ~
@@ -34,6 +35,8 @@ services:
 
     Leadin\SurvivalKitBundle\Deployment\DeploymentCommand:
         public: true
+        arguments:
+            $parameterBag: '@parameter_bag'
 
     Leadin\SurvivalKitBundle\Deployment\Github\GithubDeploymentService:
         public: true
@@ -45,6 +48,7 @@ services:
         arguments:
             $eventDispatcher: '@event_dispatcher'
             $githubDeploymentService: '@Leadin\SurvivalKitBundle\Deployment\Github\GithubDeploymentService'
+            $parameterBag: '@parameter_bag'
         tags:
             - { name: container.service_subscriber }
         calls:

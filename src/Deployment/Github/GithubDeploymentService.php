@@ -36,6 +36,9 @@ class GithubDeploymentService implements IGithubDeploymentService
         $this->executeDeploymentCommands($pullRequest);
     }
 
+    /**
+     * Override this method if custom deployment commands needed
+     */
     protected function executeDeploymentCommands(PullRequest $pullRequest): void
     {
         $this->deploymentCommand->gitPull();

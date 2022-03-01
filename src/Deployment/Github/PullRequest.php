@@ -2,6 +2,9 @@
 
 namespace Leadin\SurvivalKitBundle\Deployment\Github;
 
+/**
+ * Contains github's pull_request event data
+ */
 class PullRequest
 {
     protected const CLOSED_ACTION = 'closed';

@@ -1,6 +1,7 @@
 parameters:
     survival_kit.deployment.git_remote: 'origin'
     survival_kit.deployment.git_base_branch: 'master'
+    survival_kit.deployment.secret_token: ''
 
 services:
     GuzzleHttp\Client: ~

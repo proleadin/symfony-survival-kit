@@ -13,6 +13,8 @@ class GithubDeploymentService implements IGithubDeploymentService
     protected DeploymentCommand $deploymentCommand;
 
     /**
+     * @required
+     * 
      * {@inheritdoc}
      */
     public function setDeploymentCommand(DeploymentCommand $deploymentCommand): self

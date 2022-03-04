@@ -2,6 +2,9 @@
 
 namespace Leadin\SurvivalKitBundle\Deployment\Github;
 
+use Leadin\SurvivalKitBundle\Logging\LogContext;
+use Leadin\SurvivalKitBundle\Logging\Logger;
+
 use Leadin\SurvivalKitBundle\Deployment\DeploymentCommand;
 use Leadin\SurvivalKitBundle\Deployment\GithubDeploymentException;
 
@@ -30,9 +33,11 @@ class GithubDeploymentService implements IGithubDeploymentService
     public function deploy(PullRequest $pullRequest): void
     {
         if (!$pullRequest->isPullRequestClosed()) {
-            throw new GithubDeploymentException("Pull request not closed");
+            Logger::info("[GithubDeploymentService] PullRequest not closed. Deployment not proceed", LogContext::DEPLOYMENT());
+            return;
         } else if (!$pullRequest->isPullRequestMerged()) {
-            throw new GithubDeploymentException("Pull request not merged");
+            Logger::info("[GithubDeploymentService] PullRequest not merged. Deployment not proceed", LogContext::DEPLOYMENT());
+            return;
         }
 
         $this->executeDeploymentCommands($pullRequest);

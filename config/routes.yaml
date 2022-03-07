@@ -1,0 +1,4 @@
+survival_kit:
+    resource: "../src/Controller"
+    prefix: /
+    type: annotation

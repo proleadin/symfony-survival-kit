@@ -9,6 +9,21 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        return new TreeBuilder('survival_kit');
+        $treeBuilder = new TreeBuilder('survival_kit');
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+                ->arrayNode('deployment')
+                    ->children()
+                        ->scalarNode('git_remote')->end()
+                        ->scalarNode('git_base_branch')->end()
+                        ->scalarNode('secret_token')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+
+        return $treeBuilder;
     }
 }

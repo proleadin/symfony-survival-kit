@@ -16,11 +16,13 @@ class DeploymentCommand
 {
     protected ParameterBagInterface $parameterBag;
     protected string $sProjectDir;
+    protected string $sAppEnv;
 
     public function __construct(ParameterBagInterface $parameterBag)
     {
         $this->parameterBag = $parameterBag;
         $this->sProjectDir = $parameterBag->get('kernel.project_dir');
+        $this->sAppEnv = $parameterBag->get('kernel.environment');
     }
 
     /**
@@ -49,8 +51,8 @@ class DeploymentCommand
      */
     public function symfonyClearCache(): void
     {
-        $process = Process::fromShellCommandline("bin/console cache:clear -e prod", $this->sProjectDir);
-        $this->execute($process, "Symfony Clear Prod Cache");
+        $process = Process::fromShellCommandline("bin/console cache:clear -e {$this->sAppEnv}", $this->sProjectDir);
+        $this->execute($process, "Symfony Clear Cache");
     }
 
     /**
@@ -70,7 +72,7 @@ class DeploymentCommand
      */
     public function composerDumpEnv(): void
     {
-        $process = Process::fromShellCommandline("composer dump-env prod", $this->sProjectDir);
+        $process = Process::fromShellCommandline("composer dump-env {$this->sAppEnv}", $this->sProjectDir);
         $this->execute($process, "Composer dump-env");
     }
 

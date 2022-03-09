@@ -19,6 +19,9 @@ So there are a few rules:
 - logger tool
 - http client tool
 
+### Advanced tools
+- [github web-hook deployment](src/Deployment/README.md)
+
 ## Installation
 
 - add `symfony-survival-kit` repository in composer.json

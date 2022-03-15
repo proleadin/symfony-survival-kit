@@ -8,8 +8,15 @@ use Monolog\Handler\StreamHandler as MonologStreamHandler;
 
 class StreamHandler extends MonologStreamHandler
 {
-    private string $sConfigPath = '/code/var/ssk/log_handler.json';
+    private string $sConfigPath;
     private ?array $aConfig = null;
+
+    public function __construct(string $sStream, string $sLevel, string $sConfigPath)
+    {
+        parent::__construct($sStream, $sLevel);
+
+        $this->sConfigPath = $sConfigPath;
+    }
 
     /**
      * {@inheritdoc}

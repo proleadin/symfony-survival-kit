@@ -5,6 +5,7 @@
     "description": "Symfony survival kit",
     "require": {
         "php": "^7.4",
+        "monolog/monolog": "^2.0",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.1",
         "sensio/framework-extra-bundle": "^5.2",

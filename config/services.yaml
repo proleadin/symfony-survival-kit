@@ -54,3 +54,9 @@ services:
             - { name: container.service_subscriber }
         calls:
             - [setContainer, ['@service_container']]
+
+    Leadin\SurvivalKitBundle\Logging\Handler\StreamHandler:
+        public: true
+        arguments:
+            $stream: '%kernel.logs_dir%/%kernel.environment%.log'
+            $level: 'NOTICE'

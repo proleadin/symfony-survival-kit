@@ -70,8 +70,37 @@ class SurvivalKitExtension extends Extension
             case 'gelf':
                 $sHandlerClass = 'Leadin\SurvivalKitBundle\Logging\Handler\GelfHandler';
                 $definition = new Definition($sHandlerClass);
+
+                if (isset($aHandler['publisher']['id'])) {
+                    $publisher = new Reference($aHandler['publisher']['id']);
+                } elseif (\class_exists('Gelf\Transport\UdpTransport')) {
+                    $transport = new Definition("Gelf\Transport\UdpTransport", [
+                        $aHandler['publisher']['hostname'],
+                        $aHandler['publisher']['port'],
+                        $aHandler['publisher']['chunk_size'],
+                    ]);
+                    $transport->setPublic(false);
+    
+                    $publisher = new Definition('Gelf\Publisher', []);
+                    $publisher->addMethodCall('addTransport', [$transport]);
+                    $publisher->setPublic(false);
+                } elseif (class_exists('Gelf\MessagePublisher')) {
+                    $publisher = new Definition('Gelf\MessagePublisher', [
+                        $aHandler['publisher']['hostname'],
+                        $aHandler['publisher']['port'],
+                        $aHandler['publisher']['chunk_size'],
+                    ]);
+    
+                    $publisher->setPublic(false);
+                } else {
+                    throw new \RuntimeException('The gelf handler requires the graylog2/gelf-php package to be installed');
+                }
+
                 $definition->setArguments([
-                    // TODO
+                    $publisher,
+                    $aHandler['level'],
+                    $aHandler['config'],
+                    $aHandler['app_name']
                 ]);
                 break;
 

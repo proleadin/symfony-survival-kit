@@ -54,3 +54,12 @@ services:
             - { name: container.service_subscriber }
         calls:
             - [setContainer, ['@service_container']]
+
+    Leadin\SurvivalKitBundle\Controller\DebugManagerController:
+        public: true
+        arguments:
+            $parameterBag: '@parameter_bag'
+        tags:
+            - { name: container.service_subscriber }
+        calls:
+            - [setContainer, ['@service_container']]

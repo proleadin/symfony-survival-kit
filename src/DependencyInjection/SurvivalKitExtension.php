@@ -38,7 +38,7 @@ class SurvivalKitExtension extends Extension
         if (isset($aConfig['monolog']['handlers'])) {
             foreach ($aConfig['monolog']['handlers'] as $sName => $aHandler) {
                 $aHandlers[] = [
-                    'id' => $this->buildMonologHandler($container, $sName, $aHandler),
+                    'id' => $this->buildMonologHandler($container, $sName, $aHandler, $aConfig['monolog']['debug_manager']['config']),
                     'channels' => empty($aHandler['channels']) ? null : $aHandler['channels']
                 ];
             }
@@ -46,14 +46,16 @@ class SurvivalKitExtension extends Extension
             foreach ($aHandlers as $aHandler) {
                 $aHandlersToChannels[$aHandler['id']] = $aHandler['channels'];
             }
-
         }
+
         $container->setParameter(LoggerChannelPass::HANDLERS_TO_CHANNELS_PARAM, $aHandlersToChannels);
+        $container->setParameter('survival_kit.monolog.debug_manager.log_context_enum', $aConfig['monolog']['debug_manager']['log_context_enum']);
+        $container->setParameter('survival_kit.monolog.debug_manager.config', $aConfig['monolog']['debug_manager']['config']);
 
         $container->registerForAutoconfiguration(Facade::class)->addTag(Facade::TAG);
     }
 
-    private function buildMonologHandler(ContainerBuilder $container, string $sName, array $aHandler): string
+    private function buildMonologHandler(ContainerBuilder $container, string $sName, array $aHandler, string $sContextsConfig): string
     {
         $sHandlerId = "monolog.handler.$sName";
         switch ($aHandler['type']) {
@@ -63,7 +65,7 @@ class SurvivalKitExtension extends Extension
                 $definition->setArguments([
                     $aHandler['path'],
                     $aHandler['level'],
-                    $aHandler['config']
+                    $sContextsConfig
                 ]);
                 break;
 
@@ -99,7 +101,7 @@ class SurvivalKitExtension extends Extension
                 $definition->setArguments([
                     $publisher,
                     $aHandler['level'],
-                    $aHandler['config'],
+                    $sContextsConfig,
                     $aHandler['app_name']
                 ]);
                 break;

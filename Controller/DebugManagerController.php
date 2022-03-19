@@ -16,13 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DebugManagerController extends AbstractController
 {
-    private ParameterBagInterface $parameterBag;
-
-    public function __construct(ParameterBagInterface $parameterBag)
-    {
-        $this->parameterBag = $parameterBag;
-    }
-
     /**
      * @Route("/", name="manage", methods={"GET"})
      */
@@ -30,7 +23,7 @@ class DebugManagerController extends AbstractController
     {
         $aContexts = [];
         $aConfig = $this->getConfig();
-        $sLogContextEnum = $this->parameterBag->get('survival_kit.monolog.debug_manager.log_context_enum');
+        $sLogContextEnum = $this->getParameter('survival_kit.monolog.debug_manager.log_context_enum');
         $aLogContexts = $sLogContextEnum::toArray();
         \sort($aLogContexts);
         foreach ($aLogContexts as $sContext) {
@@ -54,14 +47,14 @@ class DebugManagerController extends AbstractController
             $aConfig = $this->getConfig();
             $aConfig[$sContext] = $sExpiration;
 
-            $sConfigPath = $this->parameterBag->get('survival_kit.monolog.debug_manager.config');
+            $sConfigPath = $this->getParameter('survival_kit.monolog.debug_manager.config');
             $sDirPath = \dirname($sConfigPath);
             if (!\is_dir($sDirPath)) {
                 \mkdir($sDirPath, 0777, true);
             }
             \file_put_contents($sConfigPath, \json_encode($aConfig), LOCK_EX);
         } catch (\Throwable $e) {
-            throw new \Exception("Cannot update config file : {$e->getMessage()}");
+            return new Response("Cannot update config file : {$e->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response("", Response::HTTP_NO_CONTENT);
@@ -69,7 +62,7 @@ class DebugManagerController extends AbstractController
 
     private function getConfig(): array
     {
-        $sConfigJson = @\file_get_contents($this->parameterBag->get('survival_kit.monolog.debug_manager.config')) ? : "";
+        $sConfigJson = @\file_get_contents($this->getParameter('survival_kit.monolog.debug_manager.config')) ? : "";
 
         return \json_decode($sConfigJson, true) ? : [];
     }

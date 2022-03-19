@@ -24,6 +24,7 @@ function initSlider() {
 	    max: start + 86400*3,
 	    step: 3600,
 	    prettify: function (end) {
+            end = (end + 1);
 			let delta = Math.abs(end - start);
 
 			let days = Math.floor(delta / 86400);

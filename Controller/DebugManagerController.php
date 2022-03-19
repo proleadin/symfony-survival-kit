@@ -51,8 +51,6 @@ class DebugManagerController extends AbstractController
     public function updateConfig(string $sContext, string $sExpiration): Response
     {
         try {
-            // TODO move code from src, put config in resources, investigate parameter bag
-
             $aConfig = $this->getConfig();
             $aConfig[$sContext] = $sExpiration;
 

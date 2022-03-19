@@ -26,16 +26,13 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
 {
     private EventDispatcherInterface $eventDispatcher;
     private IGithubDeploymentService $githubDeploymentService;
-    private ParameterBagInterface $parameterBag;
 
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        IGithubDeploymentService $githubDeploymentService,
-        ParameterBagInterface $parameterBag
+        IGithubDeploymentService $githubDeploymentService
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->githubDeploymentService = $githubDeploymentService;
-        $this->parameterBag = $parameterBag;
     }
 
     /**
@@ -83,6 +80,6 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
      */
     public function getToken() : string
     {
-        return $this->parameterBag->get('survival_kit.deployment.secret_token');
+        return $this->getParameter('survival_kit.deployment.secret_token');
     }
 }

@@ -1,16 +1,7 @@
 # Github webhook deployment
-
 Enables deployment process using Github webhooks
 
-## Configuration
-### Routes
-Import routing resources from the bundle routing file. In the service routes configuration file add:
-```
-survival_kit:
-    resource: "@SurvivalKitBundle/config/routes.yaml"
-```
-
-### Config options
+## Configuration options
 ```
 survival_kit:
     deployment:

@@ -24,16 +24,6 @@ class SurvivalKitExtension extends Extension
         $configuration = new Configuration();
         $aConfig = $this->processConfiguration($configuration, $aConfigs);
 
-        if (isset($aConfig['deployment']['git_remote'])) {
-             $container->setParameter('survival_kit.deployment.git_remote', $aConfig['deployment']['git_remote']);
-        }
-        if (isset($aConfig['deployment']['git_base_branch'])) {
-             $container->setParameter('survival_kit.deployment.git_base_branch', $aConfig['deployment']['git_base_branch']);
-        }
-        if (isset($aConfig['deployment']['secret_token'])) {
-             $container->setParameter('survival_kit.deployment.secret_token', $aConfig['deployment']['secret_token']);
-        }
-
         $aHandlersToChannels = [];
         if (isset($aConfig['monolog']['handlers'])) {
             foreach ($aConfig['monolog']['handlers'] as $sName => $aHandler) {
@@ -51,6 +41,10 @@ class SurvivalKitExtension extends Extension
         $container->setParameter(LoggerChannelPass::HANDLERS_TO_CHANNELS_PARAM, $aHandlersToChannels);
         $container->setParameter('survival_kit.monolog.debug_manager.log_context_enum', $aConfig['monolog']['debug_manager']['log_context_enum']);
         $container->setParameter('survival_kit.monolog.debug_manager.config', $aConfig['monolog']['debug_manager']['config']);
+
+        $container->setParameter('survival_kit.deployment.git_remote', $aConfig['deployment']['git_remote']);
+        $container->setParameter('survival_kit.deployment.git_base_branch', $aConfig['deployment']['git_base_branch']);
+        $container->setParameter('survival_kit.deployment.secret_token', $aConfig['deployment']['secret_token']);
 
         $container->registerForAutoconfiguration(Facade::class)->addTag(Facade::TAG);
     }

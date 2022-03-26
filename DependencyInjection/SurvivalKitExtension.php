@@ -28,7 +28,7 @@ class SurvivalKitExtension extends Extension
         if (isset($aConfig['monolog']['handlers'])) {
             foreach ($aConfig['monolog']['handlers'] as $sName => $aHandler) {
                 $aHandlers[] = [
-                    'id' => $this->buildMonologHandler($container, $sName, $aHandler, $aConfig['monolog']['debug_manager']['config']),
+                    'id' => $this->buildMonologHandler($container, $sName, $aHandler),
                     'channels' => empty($aHandler['channels']) ? null : $aHandler['channels']
                 ];
             }
@@ -40,7 +40,6 @@ class SurvivalKitExtension extends Extension
 
         $container->setParameter(LoggerChannelPass::HANDLERS_TO_CHANNELS_PARAM, $aHandlersToChannels);
         $container->setParameter('survival_kit.monolog.debug_manager.log_context_enum', $aConfig['monolog']['debug_manager']['log_context_enum']);
-        $container->setParameter('survival_kit.monolog.debug_manager.config', $aConfig['monolog']['debug_manager']['config']);
 
         $container->setParameter('survival_kit.deployment.git_remote', $aConfig['deployment']['git_remote']);
         $container->setParameter('survival_kit.deployment.git_base_branch', $aConfig['deployment']['git_base_branch']);
@@ -49,9 +48,10 @@ class SurvivalKitExtension extends Extension
         $container->registerForAutoconfiguration(Facade::class)->addTag(Facade::TAG);
     }
 
-    private function buildMonologHandler(ContainerBuilder $container, string $sName, array $aHandler, string $sContextsConfig): string
+    private function buildMonologHandler(ContainerBuilder $container, string $sName, array $aHandler): string
     {
         $sHandlerId = "monolog.handler.$sName";
+        $debugManagerConfigStorage = new Reference('Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage');
         switch ($aHandler['type']) {
             case 'stream':
                 $sHandlerClass = 'Leadin\SurvivalKitBundle\Logging\Handler\StreamHandler';
@@ -59,7 +59,7 @@ class SurvivalKitExtension extends Extension
                 $definition->setArguments([
                     $aHandler['path'],
                     $aHandler['level'],
-                    $sContextsConfig
+                    $debugManagerConfigStorage
                 ]);
                 break;
 
@@ -95,8 +95,8 @@ class SurvivalKitExtension extends Extension
                 $definition->setArguments([
                     $publisher,
                     $aHandler['level'],
-                    $sContextsConfig,
-                    $aHandler['app_name']
+                    $aHandler['app_name'],
+                    $debugManagerConfigStorage
                 ]);
                 break;
 

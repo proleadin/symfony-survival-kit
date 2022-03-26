@@ -21,4 +21,6 @@ class LogContext extends Enum
     protected const TRACKING   = 'tracking';
     protected const SECURITY   = 'security';
     protected const DEPLOYMENT = 'deployment';
+    protected const LONG_DEBUG = 'long_debug';
+    protected const SSK_BUNDLE = 'ssk_bundle';
 }

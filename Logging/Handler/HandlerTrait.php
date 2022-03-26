@@ -2,7 +2,10 @@
 
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
-use Monolog\Logger;
+use Leadin\SurvivalKitBundle\Logging\LogContext;
+use Leadin\SurvivalKitBundle\Logging\Logger;
+
+use Monolog\Logger as MonologLogger;
 use Monolog\Utils;
 use Monolog\Handler\StreamHandler as MonologStreamHandler;
 
@@ -13,12 +16,11 @@ trait HandlerTrait
 
     private function handleLog(array $aRecord): bool
     {
-        $bIsHandlingByDefault = parent::isHandling($aRecord);
-        if ($bIsHandlingByDefault) {
+        if (parent::isHandling($aRecord)) {
             return parent::handle($aRecord);
         }
 
-        if ($aRecord['level'] !== Logger::DEBUG || !isset($aRecord['context']['context'])) {
+        if (MonologLogger::DEBUG !== $aRecord['level'] || !isset($aRecord['context']['context'])) {
             return false;
         }
 
@@ -34,11 +36,31 @@ trait HandlerTrait
 
     private function loadConfig()
     {
+        // exit if config was loaded already
         if (!is_null($this->aConfig)) {
             return;
         }
 
-        $sConfigJson = @\file_get_contents($this->sConfigPath) ? : "";
-        $this->aConfig = \json_decode($sConfigJson, true) ? : [];
+        $sHandlerName = (new \ReflectionClass($this))->getShortName();
+        try {
+            $sConfigJson = \file_get_contents($this->sConfigPath);
+        } catch (\Throwable $e) {
+            // there is no config file by default, it's created when some debug logs have been activated
+            // we do not want to raise an error when config file does not exist
+            $this->aConfig = [];
+
+            return;
+        }
+
+        $aConfig = \json_decode($sConfigJson, true);
+        if (\JSON_ERROR_NONE !== \json_last_error()) {
+            Logger::error("[$sHandlerName] Failed to decode debug manager config file: " . \json_last_error_msg(), LogContext::SSK_BUNDLE(), ['config' => $sConfigJson]);
+            $aConfig = [];
+        } else if (!\is_array($aConfig)) {
+            Logger::error("[$sHandlerName] Debug manager config not valid", LogContext::SSK_BUNDLE(), ['config' => $sConfigJson]);
+            $aConfig = [];
+        }
+
+        $this->aConfig = $aConfig;
     }
 }

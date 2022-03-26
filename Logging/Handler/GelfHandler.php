@@ -2,6 +2,8 @@
 
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
+use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
+
 use Gelf\PublisherInterface;
 use Monolog\Handler\GelfHandler as MonologGelfHandler;
 use Monolog\Formatter\FormatterInterface;
@@ -13,12 +15,16 @@ class GelfHandler extends MonologGelfHandler
 
     private ?string $sAppName;
 
-    public function __construct(PublisherInterface $publisher, string $sLevel, string $sConfigPath, string $sAppName)
-    {
+    public function __construct(
+        PublisherInterface $publisher,
+        string $sLevel,
+        string $sAppName,
+        DebugManagerConfigStorage $debugManagerConfigStorage
+    ) {
         parent::__construct($publisher, $sLevel);
 
-        $this->sConfigPath = $sConfigPath;
         $this->sAppName = $sAppName;
+        $this->debugManagerConfigStorage = $debugManagerConfigStorage;
     }
 
     /**

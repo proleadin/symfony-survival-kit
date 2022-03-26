@@ -2,6 +2,8 @@
 
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
+use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
+
 use Monolog\Logger;
 use Monolog\Utils;
 use Monolog\Handler\StreamHandler as MonologStreamHandler;
@@ -10,11 +12,11 @@ class StreamHandler extends MonologStreamHandler
 {
     use HandlerTrait;
 
-    public function __construct(string $sStream, string $sLevel, string $sConfigPath)
+    public function __construct(string $sStream, string $sLevel, DebugManagerConfigStorage $debugManagerConfigStorage)
     {
         parent::__construct($sStream, $sLevel);
 
-        $this->sConfigPath = $sConfigPath;
+        $this->debugManagerConfigStorage = $debugManagerConfigStorage;
     }
 
     /**

@@ -7,6 +7,10 @@ services:
         tags:
             - { name: !php/const Leadin\SurvivalKitBundle\DependencyInjection\Facade::TAG }
 
+    Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage:
+        arguments:
+            $configCachePool: '@cache.app'
+
     Leadin\SurvivalKitBundle\DependencyInjection\Facade:
         public: true
 
@@ -22,9 +26,6 @@ services:
         public: true
         calls:
             - [setHttpClient, ['@GuzzleHttp\Client']]
-
-    Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClientResponse:
-        public: true
 
     Leadin\SurvivalKitBundle\Deployment\Github\PullRequest:
         public: true
@@ -51,6 +52,8 @@ services:
 
     Leadin\SurvivalKitBundle\Controller\DebugManagerController:
         public: true
+        arguments:
+            $configStorage: '@Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage'
         tags:
             - { name: container.service_subscriber }
         calls:

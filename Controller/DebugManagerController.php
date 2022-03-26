@@ -2,6 +2,7 @@
 
 namespace Leadin\SurvivalKitBundle\Controller;
 
+use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 
@@ -16,13 +17,20 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DebugManagerController extends AbstractController
 {
+    private DebugManagerConfigStorage $configStorage;
+
+    public function __construct(DebugManagerConfigStorage $configStorage)
+    {
+        $this->configStorage = $configStorage;
+    }
+
     /**
      * @Route("/", name="manage", methods={"GET"})
      */
     public function manage(Request $request): Response
     {
         $aContexts = [];
-        $aConfig = $this->getConfig();
+        $aConfig = $this->configStorage->getConfig();
         $sLogContextEnum = $this->getParameter('survival_kit.monolog.debug_manager.log_context_enum');
         $aLogContexts = $sLogContextEnum::toArray();
         \sort($aLogContexts);
@@ -44,26 +52,11 @@ class DebugManagerController extends AbstractController
     public function updateConfig(string $sContext, string $sExpiration): Response
     {
         try {
-            $aConfig = $this->getConfig();
-            $aConfig[$sContext] = $sExpiration;
-
-            $sConfigPath = $this->getParameter('survival_kit.monolog.debug_manager.config');
-            $sDirPath = \dirname($sConfigPath);
-            if (!\is_dir($sDirPath)) {
-                \mkdir($sDirPath, 0777, true);
-            }
-            \file_put_contents($sConfigPath, \json_encode($aConfig), LOCK_EX);
+            $this->configStorage->updateConfig($sContext, $sExpiration);
         } catch (\Throwable $e) {
             return new Response("Cannot update config file : {$e->getMessage()}", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return new Response("", Response::HTTP_NO_CONTENT);
-    }
-
-    private function getConfig(): array
-    {
-        $sConfigJson = @\file_get_contents($this->getParameter('survival_kit.monolog.debug_manager.config')) ? : "";
-
-        return \json_decode($sConfigJson, true) ? : [];
     }
 }

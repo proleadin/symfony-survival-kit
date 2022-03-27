@@ -40,6 +40,7 @@ class SurvivalKitExtension extends Extension
 
         $container->setParameter(LoggerChannelPass::HANDLERS_TO_CHANNELS_PARAM, $aHandlersToChannels);
         $container->setParameter('survival_kit.monolog.debug_manager.log_context_enum', $aConfig['monolog']['debug_manager']['log_context_enum']);
+        $container->setParameter('survival_kit.monolog.debug_manager.api_key', $aConfig['monolog']['debug_manager']['api_key']);
 
         $container->setParameter('survival_kit.deployment.git_remote', $aConfig['deployment']['git_remote']);
         $container->setParameter('survival_kit.deployment.git_base_branch', $aConfig['deployment']['git_base_branch']);

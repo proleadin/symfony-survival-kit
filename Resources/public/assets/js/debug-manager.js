@@ -62,12 +62,13 @@ function initSlider() {
 	    onChange: function(obj) {
     		const expiration = obj.from;
     		const context = obj.input[0].id;
+    		const key = obj.input[0].dataset.key;
 
             // delay update to avoid sending request on each slider move
     		delay(function() {
 				$.ajax({
 					type: 'GET',
-					url: 'update-config/' + context + '/' + expiration
+					url: 'update-config/' + context + '/' + expiration + '?api_key=' + key
 				})
 				.done(function(data, textStatus, jqXHR) {
 					colorMatch();

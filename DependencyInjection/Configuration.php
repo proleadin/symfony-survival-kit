@@ -26,6 +26,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('debug_manager')
                             ->children()
                                 ->scalarNode('log_context_enum')->defaultValue('Leadin\SurvivalKitBundle\Logging\LogContext')->end()
+                                ->scalarNode('api_key')->isRequired()->end()
                             ->end()
                         ->end()
                         ->arrayNode('handlers')

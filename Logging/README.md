@@ -6,8 +6,8 @@ Provides handy tools for logging system
 survival_kit:
     monolog:
         debug_manager:
+            api_key: [authentication key]               // required, auth key to be send in a request query param
             log_context_enum: [enum_class]              // optional, defaults to `Leadin\SurvivalKitBundle\Logging\LogContext`
-            config: [path_to_store_config_file]         // optional, defaults to `var/ssk/{app_env}/debug_manager_config.json`
 
         handlers:
             name:
@@ -43,6 +43,13 @@ Bundle provides [Logger](Logger.php) class with the methods which can be called 
 ::alert(string $sMessage, LogContext $logContext, array $aMetadata = []): void
 ::emergency(string $sMessage, LogContext $logContext, array $aMetadata = []): void
 ```
+Each log requires context to be specified. Possible log contexts are defined in [LogContext](LogContext.php).
+This class can be extended if additional context needed in the App.
 
 ### Debug Manager
-Bundle provides `/debug-manager` endpoint to activate debug logs by context for given duration.
+Bundle provides following endpoints (secured by api key - see `api_key` configuration option):
+- GET `/debug-manager` - interface to display/activate debug logs by context for given duration
+- GET `/debug-manager/update-config/{sContext}/{sExpiration}` - set context debug logs expiration time
+
+Debug Manager uses the [App cache](https://symfony.com/doc/current/cache.html#cache-configuration-with-frameworkbundle) internally to store config for log contexts - so make sure this is configured to use an adapter you want.
+There should be also set a value for the [cache.prefix.seed](https://symfony.com/doc/current/reference/configuration/framework.html#reference-cache-prefix-seed) configuration option in order to use the same cache namespace between deployments.

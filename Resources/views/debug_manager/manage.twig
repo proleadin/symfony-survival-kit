@@ -19,7 +19,7 @@
             <tr>
                 <td class="context">{{context.name}}</td>
                 <td class="slider">
-                    <input class="js-range-slider hidden" id="{{context.name}}" data-from="{{context.expiration}}" readonly="readonly"/>
+                    <input class="js-range-slider hidden" id="{{context.name}}" data-from="{{context.expiration}}" data-key="{{apiKey}}" readonly="readonly"/>
                 </td>
             </tr>
             {% endfor %}

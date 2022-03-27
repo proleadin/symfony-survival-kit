@@ -14,7 +14,7 @@ services:
     Leadin\SurvivalKitBundle\DependencyInjection\Facade:
         public: true
 
-    Leadin\SurvivalKitBundle\EventSubscriber\AuthenticationHeaderSubscriber:
+    Leadin\SurvivalKitBundle\EventSubscriber\AuthenticationSubscriber:
         tags:
             - { name: kernel.event_subscriber }
 

@@ -12,12 +12,16 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Validates the authentication headers
- * Handles header types:
+ * Authenticates incoming requests for the controllers implementing ITokenAuthenticatedController
+ * 
+ * Handles headers types:
  * - Authorization
  * - X-Hub-Signature
+ * 
+ * Handles query params:
+ * - api_key
  */
-class AuthenticationHeaderSubscriber implements EventSubscriberInterface
+class AuthenticationSubscriber implements EventSubscriberInterface
 {
     private const BEARER_TOKEN_TYPE = 'Bearer';
 
@@ -65,6 +69,8 @@ class AuthenticationHeaderSubscriber implements EventSubscriberInterface
                 $this->denyAccess($sRouteName, $sHash);
             }
             return;
+        } elseif ($sApiKey = $request->query->get('api_key')) {
+            $sRequestToken = $sApiKey;
         }
 
         if ($sRequestToken !== $sAccessToken) {

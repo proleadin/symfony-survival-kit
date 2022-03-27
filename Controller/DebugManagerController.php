@@ -2,6 +2,7 @@
 
 namespace Leadin\SurvivalKitBundle\Controller;
 
+use Leadin\SurvivalKitBundle\HttpHelper\HttpServerHelper\ITokenAuthenticatedController;
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
@@ -15,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/debug-manager", name="survival_kit_debug_manager_")
  */
-class DebugManagerController extends AbstractController
+class DebugManagerController extends AbstractController implements ITokenAuthenticatedController
 {
     private DebugManagerConfigStorage $configStorage;
 
@@ -42,7 +43,8 @@ class DebugManagerController extends AbstractController
         }
 
         return $this->render('@SurvivalKit/debug_manager/manage.twig', [
-            "contexts" => $aContexts
+            "contexts" => $aContexts,
+            "apiKey" => $this->getToken()
         ]);
     }
 
@@ -58,5 +60,13 @@ class DebugManagerController extends AbstractController
         }
 
         return new Response("", Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getToken() : string
+    {
+        return $this->getParameter('survival_kit.monolog.debug_manager.api_key');
     }
 }

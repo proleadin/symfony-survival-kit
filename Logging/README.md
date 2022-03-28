@@ -48,8 +48,8 @@ This class can be extended if additional context needed in the App.
 
 ### Debug Manager
 Bundle provides following endpoints (secured by api key - see `api_key` configuration option):
-- GET `/debug-manager` - interface to display/activate debug logs by context for given duration
-- GET `/debug-manager/update-config/{sContext}/{sExpiration}` - set context debug logs expiration time
+- GET `/debug-manager?api_key=[key]` - interface to activate debug logs by context for given duration
+- GET `/debug-manager/update-config/{sContext}/{sExpiration}?api_key=[key]` - set context debug logs expiration time
 
 Debug Manager uses the [App cache](https://symfony.com/doc/current/cache.html#cache-configuration-with-frameworkbundle) internally to store config for log contexts - so make sure this is configured to use an adapter you want.
 There should be also set a value for the [cache.prefix.seed](https://symfony.com/doc/current/reference/configuration/framework.html#reference-cache-prefix-seed) configuration option in order to use the same cache namespace between deployments.

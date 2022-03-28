@@ -1,6 +1,6 @@
 # Symfony Survival Kit
 
-This bundle has been created to share all the tools and code for Symfony microservices.
+This bundle has been created to share all the tools and code for Symfony Apps.
 
 It provides:
 - A common way to do things
@@ -12,15 +12,19 @@ So there are a few rules:
 - Limit the number of external dependencies
 - Keep compatibility as much as possible and plan smooth migrations
 - Services should not use autowiring or autoconfiguration. Instead, all services should be defined explicitly
-- Services not meant to be used by the microservice directly, should be defined as private
+- Services not meant to be used by the App directly, should be defined as private
 
 ## This bundle provides the following:
 ### Basic tools
-- logger tool
-- http client tool
+- [logging](Logging/README.md)
+- http client
 
 ### Advanced tools
-- [github web-hook deployment](src/Deployment/README.md)
+- [github web-hook deployment](Deployment/README.md)
+
+### Built-in Event Subscribers
+- request body subscriber
+- authorization header subscriber
 
 ## Installation
 
@@ -34,6 +38,11 @@ So there are a few rules:
     ]
 ```
 - use composer to install `$ composer require leadin/symfony-survival-kit`
+- import routing resources from the bundle routing file. In the App routes configuration file add:
+```
+survival_kit:
+    resource: "@SurvivalKitBundle/config/routes.yaml"
+```
 
 ## Development
 ### Versioning
@@ -42,8 +51,8 @@ So there are a few rules:
 - To release create new github tag and publish release with it
 
 ### New functionality or improvements
-- Bundle can be tested only through existing Symfony microservice
-- For the tests purpose of new development You can switch locally any microservice to use the bundle dev branch instead of the release. In composer.json only, you should prefix your custom branch name with `dev-`, and replace the current release version
+- Bundle can be tested only through existing Symfony App
+- For the tests purpose of new development You can switch locally any App to use the bundle dev branch instead of the release. In composer.json only, you should prefix your custom branch name with `dev-`, and replace the current release version
 ```
     "require": {
         "leadin/symfony-survival-kit": "dev-custom_branch"

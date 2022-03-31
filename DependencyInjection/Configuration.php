@@ -14,11 +14,12 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('app_host')->isRequired()->end()
                 ->arrayNode('deployment')
                     ->children()
                         ->scalarNode('git_remote')->defaultValue('origin')->end()
                         ->scalarNode('git_base_branch')->defaultValue('master')->end()
-                        ->scalarNode('secret_token')->defaultValue('')->end()
+                        ->scalarNode('secret_token')->isRequired()->end()
                     ->end()
                 ->end()
                 ->arrayNode('monolog')

@@ -26,6 +26,7 @@ class SurvivalKitExtension extends Extension
 
         $aHandlersToChannels = [];
         if (isset($aConfig['monolog']['handlers'])) {
+            $aHandlers = [];
             foreach ($aConfig['monolog']['handlers'] as $sName => $aHandler) {
                 $aHandlers[] = [
                     'id' => $this->buildMonologHandler($container, $sName, $aHandler),

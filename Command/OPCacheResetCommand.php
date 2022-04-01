@@ -14,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Allows to reset OPCache of the web server or PHP-FPM process from the command line
+ */
 class OPCacheResetCommand extends Command
 {
     protected static $defaultName = 'ssk:opcache-reset';

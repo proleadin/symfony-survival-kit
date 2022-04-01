@@ -26,6 +26,7 @@ class SurvivalKitExtension extends Extension
 
         $aHandlersToChannels = [];
         if (isset($aConfig['monolog']['handlers'])) {
+            $aHandlers = [];
             foreach ($aConfig['monolog']['handlers'] as $sName => $aHandler) {
                 $aHandlers[] = [
                     'id' => $this->buildMonologHandler($container, $sName, $aHandler),
@@ -45,6 +46,8 @@ class SurvivalKitExtension extends Extension
         $container->setParameter('survival_kit.deployment.git_remote', $aConfig['deployment']['git_remote']);
         $container->setParameter('survival_kit.deployment.git_base_branch', $aConfig['deployment']['git_base_branch']);
         $container->setParameter('survival_kit.deployment.secret_token', $aConfig['deployment']['secret_token']);
+
+        $container->setParameter('survival_kit.app_host', $aConfig['app_host']);
 
         $container->registerForAutoconfiguration(Facade::class)->addTag(Facade::TAG);
     }

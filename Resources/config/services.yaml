@@ -58,3 +58,20 @@ services:
             - { name: container.service_subscriber }
         calls:
             - [setContainer, ['@Psr\Container\ContainerInterface']]
+
+    Leadin\SurvivalKitBundle\Controller\InternalToolsController:
+        public: true
+        tags:
+            - { name: container.service_subscriber }
+        calls:
+            - [setContainer, ['@Psr\Container\ContainerInterface']]
+
+    Leadin\SurvivalKitBundle\Command\OPCacheResetCommand:
+        public: true
+        arguments:
+            $sAppHost: '%survival_kit.app_host%'
+            $sAuthorizationToken: '%kernel.secret%'
+            $httpClient: '@Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper\HttpClient'
+            $router: '@router.default'
+        tags:
+            - { name: console.command }

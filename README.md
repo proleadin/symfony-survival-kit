@@ -47,6 +47,12 @@ survival_kit:
     resource: "@SurvivalKitBundle/config/routes.yaml"
 ```
 
+### Configuration options
+```
+survival_kit:
+    app_host: [string]        // required, host IP or docker container name
+```
+
 ## Development
 ### Versioning
 - Bundle must be versioned following the [Semantic Versioning Standard](https://semver.org/) X.Y.Z (MAJOR.MINOR.PATCH, e.g. 1.0.0)

@@ -22,6 +22,9 @@ So there are a few rules:
 ### Advanced tools
 - [github web-hook deployment](Deployment/README.md)
 
+### Console Commands
+- [OPCache reset](Command/OPCacheResetCommand.php) `ssk:opcache-reset`
+
 ### Built-in Event Subscribers
 - request body subscriber
 - authorization header subscriber
@@ -42,6 +45,12 @@ So there are a few rules:
 ```
 survival_kit:
     resource: "@SurvivalKitBundle/config/routes.yaml"
+```
+
+### Configuration options
+```
+survival_kit:
+    app_host: [string]        // required, host IP or docker container name
 ```
 
 ## Development

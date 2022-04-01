@@ -40,7 +40,7 @@ class OPCacheResetCommand extends Command
         $this->setDescription('Reset OPCache');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
         try {
@@ -51,12 +51,8 @@ class OPCacheResetCommand extends Command
             $this->httpClient->get($sUrl, $aRequestOptions, "[OPCacheResetCommand] OPCache reset", LogContext::INTERNAL_TOOLS());
         } catch (HttpClientException $e) {
             $io->error("OPCache reset failed: httpCode: {$e->getCode()} | {$e->getMessage()}");
-
-            return Command::FAILURE;
         }
 
         $io->success('OPCache reset succeed');
-
-        return Command::SUCCESS;
     }
 }

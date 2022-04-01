@@ -22,6 +22,9 @@ So there are a few rules:
 ### Advanced tools
 - [github web-hook deployment](Deployment/README.md)
 
+### Console Commands
+- [OPCache reset](Command/OPCacheResetCommand.php)
+
 ### Built-in Event Subscribers
 - request body subscriber
 - authorization header subscriber

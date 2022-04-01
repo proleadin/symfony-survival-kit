@@ -23,7 +23,7 @@ So there are a few rules:
 - [github web-hook deployment](Deployment/README.md)
 
 ### Console Commands
-- [OPCache reset](Command/OPCacheResetCommand.php)
+- [OPCache reset](Command/OPCacheResetCommand.php) `ssk:opcache-reset`
 
 ### Built-in Event Subscribers
 - request body subscriber

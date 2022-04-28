@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Wire monolog handlers to channels
+ * Create channels and wire handlers to them
  */
 class LoggerChannelPass implements CompilerPassInterface
 {
@@ -25,6 +25,21 @@ class LoggerChannelPass implements CompilerPassInterface
             return;
         }
 
+        // create channels necessary for the handlers
+        foreach ($container->findTaggedServiceIds('monolog.logger') as $aTags) {
+            foreach ($aTags as $aTag) {
+                if (empty($aTag['channel']) || 'app' === $aTag['channel']) {
+                    continue;
+                }
+
+                $sResolvedChannel = $container->getParameterBag()->resolveValue($aTag['channel']);
+                if (!in_array($sResolvedChannel, $this->aChannels)) {
+                    $this->aChannels[] = $container->getParameterBag()->resolveValue($aTag['channel']);
+                }
+            }
+        }
+
+        // wire handlers to channels
         $aHandlersToChannels = $container->getParameter(self::HANDLERS_TO_CHANNELS_PARAM);
         foreach ($aHandlersToChannels as $sHandler => $aChannels) {
             foreach ($this->processChannels($aChannels) as $sChannel) {

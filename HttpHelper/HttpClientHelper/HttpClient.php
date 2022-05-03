@@ -74,7 +74,7 @@ class HttpClient
             $sResponseBody = $response->getBody()->getContents();
             $response->getBody()->rewind();
             Logger::debug("$sAction : succeed requesting $sMethod $sUrl - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
-                'response' => $sResponseBody,
+                'response' => \mb_detect_encoding($sResponseBody, null, true) ? $sResponseBody : \utf8_encode($sResponseBody),
                 'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
             ]));
         } catch (GuzzleException $e) {

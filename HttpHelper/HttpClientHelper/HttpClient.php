@@ -68,14 +68,18 @@ class HttpClient
     ): ResponseInterface
     {
         try {
+            $aRequestOptions[RequestOptions::ON_STATS] = function (\GuzzleHttp\TransferStats $stats) use (&$sEffectiveUri) {
+                $sEffectiveUri = $stats->getEffectiveUri();
+            };
             $aRequestOptions[RequestOptions::TIMEOUT] = $aRequestOptions[RequestOptions::TIMEOUT] ?? self::DEFAULT_REQUEST_TIMEOUT;
-            $response = $this->httpClient->request($sMethod, $sUrl, $aRequestOptions);
 
+            $response = $this->httpClient->request($sMethod, $sUrl, $aRequestOptions);
             $sResponseBody = $response->getBody()->getContents();
             $response->getBody()->rewind();
-            Logger::debug("$sAction : succeed requesting $sMethod $sUrl - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
+
+            Logger::debug("$sAction : succeed requesting $sMethod $sEffectiveUri - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
                 'response' => \mb_detect_encoding($sResponseBody, null, true) ? $sResponseBody : \utf8_encode($sResponseBody),
-                'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
+                'requestOptions' => $this->cleanRequestOptions($aRequestOptions)
             ]));
         } catch (GuzzleException $e) {
             if (\method_exists($e, 'hasResponse') && $e->hasResponse()) {
@@ -87,20 +91,27 @@ class HttpClient
                 $iHttpCode = $e->getCode();
             }
 
-            Logger::error("$sAction : error while requesting $sMethod $sUrl - $iHttpCode", $logContext, \array_merge($aLogMetadata, [
+            Logger::error("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogMetadata, [
                 'response' => $sMessage,
-                'requestOptions' => $this->hideRequestSecrets($aRequestOptions)
+                'requestOptions' => $this->cleanRequestOptions($aRequestOptions)
             ]));
 
             throw new HttpClientException($sMessage, $iHttpCode);
 
         } catch (\Throwable $e) {
-            Logger::exception("$sAction : error while requesting $sMethod $sUrl", $logContext, $e, $aLogMetadata);
+            Logger::exception("$sAction : error while requesting $sMethod $sEffectiveUri", $logContext, $e, $aLogMetadata);
 
             throw $e;
         }
 
         return $response;
+    }
+
+    private function cleanRequestOptions(array $aRequestOptions): array
+    {
+        unset($aRequestOptions[RequestOptions::ON_STATS]);
+
+        return $this->hideRequestSecrets($aRequestOptions);
     }
 
     private function hideRequestSecrets(array $aRequestOptions): array

@@ -77,8 +77,14 @@ class HttpClient
             $sResponseBody = $response->getBody()->getContents();
             $response->getBody()->rewind();
 
+            // some responses can have unsupported encoding
+            // need to fix the response encoding in order to have logs properly added
+            if (\function_exists('mb_detect_encoding') && !\mb_detect_encoding($sResponseBody, null, true)) {
+                $sResponseBody = \utf8_encode($sResponseBody);
+            }
+
             Logger::debug("$sAction : succeed requesting $sMethod $sEffectiveUri - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
-                'response' => \mb_detect_encoding($sResponseBody, null, true) ? $sResponseBody : \utf8_encode($sResponseBody),
+                'response' => $sResponseBody,
                 'requestOptions' => $this->cleanRequestOptions($aRequestOptions)
             ]));
         } catch (GuzzleException $e) {

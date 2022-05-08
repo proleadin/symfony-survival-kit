@@ -15,6 +15,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('app_host')->isRequired()->end()
+                ->scalarNode('maintenance_mode')->defaultValue(false)->end()
                 ->arrayNode('deployment')
                     ->isRequired()
                     ->children()
@@ -132,6 +133,10 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(fn ($v) => !\is_bool($v['maintenance_mode']))
+                ->thenInvalid("The 'maintenance_mode' must be a bool type")
             ->end()
         ;
 

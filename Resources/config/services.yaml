@@ -75,3 +75,9 @@ services:
             $router: '@router.default'
         tags:
             - { name: console.command }
+
+    Leadin\SurvivalKitBundle\EventSubscriber\MaintenaceModeSubscriber:
+        arguments:
+            $parameterBag: '@parameter_bag'
+        tags:
+            - { name: kernel.event_subscriber }

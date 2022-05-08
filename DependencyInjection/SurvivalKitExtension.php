@@ -49,6 +49,8 @@ class SurvivalKitExtension extends Extension
 
         $container->setParameter('survival_kit.app_host', $aConfig['app_host']);
 
+        $container->setParameter('survival_kit.maintenance_mode', $aConfig['maintenance_mode']);
+
         $container->registerForAutoconfiguration(Facade::class)->addTag(Facade::TAG);
     }
 

@@ -1,0 +1,76 @@
+#result-error {
+    background-image: url("../images/fond-result-error.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: bottom;
+    background-color: #ffe994;
+}
+
+.container-result-error {
+    text-align: left;
+    min-height: 100vh;
+    font-family: 'Raleway', Arial, sans-serif;
+    padding: 0;
+}
+
+.opacity-result-error {
+    background-color: white;
+    padding: 80px 10%;
+    opacity: 0.9;
+    filter: alpha(opacity=90);
+    /* For IE8 and earlier */
+}
+
+.h1-result-error {
+    font-size: 2em;
+    font-weight: bold;
+    color: #253858;
+}
+
+.text-result-error {
+    max-width: 800px;
+}
+
+
+/* =============================
+/* MEDIA QUERIES
+================================ */
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media (max-width: 575.98px) {
+    #home-version {
+        background-image: none;
+        background-color: #ffe994;
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    #home-version {
+        background-image: url("../images/fond-result-error.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: unset;
+        background-color: #ffe994;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    #home-version {
+        background-image: url("../images/fond-result-error.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: unset;
+        background-color: #ffe994;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {}
+
+/* Large devices ++ (large desktops, 1200px and 2000px) */
+@media (min-width: 1200px) and (max-width: 2000px) {}
+
+/* Extra large devices (large desktops, 2000px and up) */
+@media (min-width: 2000px) and (max-width: 5000px) {}

@@ -79,5 +79,6 @@ services:
     Leadin\SurvivalKitBundle\EventSubscriber\MaintenaceModeSubscriber:
         arguments:
             $parameterBag: '@parameter_bag'
+            $twig: '@twig'
         tags:
             - { name: kernel.event_subscriber }

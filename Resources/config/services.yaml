@@ -76,7 +76,7 @@ services:
         tags:
             - { name: console.command }
 
-    Leadin\SurvivalKitBundle\EventSubscriber\MaintenaceModeSubscriber:
+    Leadin\SurvivalKitBundle\EventSubscriber\MaintenanceModeSubscriber:
         arguments:
             $parameterBag: '@parameter_bag'
             $twig: '@twig'

@@ -18,13 +18,14 @@ use Twig\Environment;
 class MaintenanceModeSubscriber implements EventSubscriberInterface
 {
     private const BUNDLE_ASSETS_URI = 'survivalkit/assets';
+    private const BUNDLE_OPCACHE_RESET_URI = 'internal-tools/opcache-reset';
 
     private bool $bMaintenanceMode = false;
     private Environment $twig;
 
-    public function __construct(ParameterBagInterface $parameterBag, Environment $twig)
+    public function __construct(bool $bMaintenanceMode, Environment $twig)
     {
-        $this->bMaintenanceMode = $parameterBag->get('survival_kit.maintenance_mode');
+        $this->bMaintenanceMode = $bMaintenanceMode;
         $this->twig = $twig;
     }
 
@@ -39,8 +40,15 @@ class MaintenanceModeSubscriber implements EventSubscriberInterface
     {
         Logger::debug("[MaintenaceModeSubscriber] Checking is maintenance mode enabled", LogContext::SSK_BUNDLE());
 
-        if (!$this->bMaintenanceMode || !$event->isMasterRequest() || $this->isBundleAssetsRequest($event)) {
+        if (!$this->bMaintenanceMode) {
             Logger::debug("[MaintenaceModeSubscriber] Maintenance mode disabled", LogContext::SSK_BUNDLE());
+
+            return;
+        } else if (!$event->isMasterRequest() || $this->isExcludedRequest($event)) {
+            Logger::debug(
+                "[MaintenaceModeSubscriber] Excluded request from maintenance mode : {$event->getRequest()->getRequestUri()}",
+                LogContext::SSK_BUNDLE()
+            );
 
             return;
         }
@@ -61,8 +69,11 @@ class MaintenanceModeSubscriber implements EventSubscriberInterface
         $event->stopPropagation();
     }
 
-    private function isBundleAssetsRequest(RequestEvent $event): bool
+    private function isExcludedRequest(RequestEvent $event): bool
     {
-        return \strpos($event->getRequest()->getRequestUri(), self::BUNDLE_ASSETS_URI) !== false;
+        $sRequestUri = $event->getRequest()->getRequestUri();
+
+        return \strpos($sRequestUri, self::BUNDLE_ASSETS_URI) !== false
+            || \strpos($sRequestUri, self::BUNDLE_OPCACHE_RESET_URI) !== false;
     }
 }

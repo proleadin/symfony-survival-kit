@@ -15,7 +15,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('app_host')->isRequired()->end()
-                ->scalarNode('maintenance_mode')->defaultValue(false)->end()
+                ->scalarNode('maintenance_mode')->defaultFalse()->end()
                 ->arrayNode('deployment')
                     ->isRequired()
                     ->children()

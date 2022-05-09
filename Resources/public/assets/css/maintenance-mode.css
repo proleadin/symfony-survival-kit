@@ -1,19 +1,19 @@
-#result-error {
-    background-image: url("../images/fond-result-error.jpg");
+#maintenance-mode {
+    background-image: url("../images/maintenance-mode.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: bottom;
     background-color: #ffe994;
 }
 
-.container-result-error {
+.container-maintenance-mode {
     text-align: left;
     min-height: 100vh;
     font-family: 'Raleway', Arial, sans-serif;
     padding: 0;
 }
 
-.opacity-result-error {
+.opacity-maintenance-mode {
     background-color: white;
     padding: 80px 10%;
     opacity: 0.9;
@@ -21,13 +21,13 @@
     /* For IE8 and earlier */
 }
 
-.h1-result-error {
+.h1-maintenance-mode {
     font-size: 2em;
     font-weight: bold;
     color: #253858;
 }
 
-.text-result-error {
+.text-maintenance-mode {
     max-width: 800px;
 }
 
@@ -38,7 +38,7 @@
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
-    #home-version {
+    #maintenance-mode {
         background-image: none;
         background-color: #ffe994;
     }
@@ -46,8 +46,8 @@
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) and (max-width: 767.98px) {
-    #home-version {
-        background-image: url("../images/fond-result-error.jpg");
+    #maintenance-mode {
+        background-image: url("../images/maintenance-mode.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: unset;
@@ -57,8 +57,8 @@
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) and (max-width: 991.98px) {
-    #home-version {
-        background-image: url("../images/fond-result-error.jpg");
+    #maintenance-mode {
+        background-image: url("../images/maintenance-mode.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: unset;

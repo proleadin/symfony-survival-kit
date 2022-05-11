@@ -28,6 +28,7 @@ So there are a few rules:
 ### Built-in Event Subscribers
 - request body subscriber
 - authorization header subscriber
+- maintenance mode subscriber
 
 ## Installation
 
@@ -50,8 +51,11 @@ survival_kit:
 ### Configuration options
 ```
 survival_kit:
-    app_host: [string]        // required, host IP or docker container name
+    app_host: [string]              // required, host IP or docker container name
+    maintenance_mode: [bool]        // optional, default false
 ```
+
+If needed to authorize single request when maintenance mode is enabled, add query param `maintenance_mode=0` to the url.
 
 ## Development
 ### Versioning

@@ -62,8 +62,6 @@ class MaintenanceModeSubscriber implements EventSubscriberInterface
 
         Logger::warning("[MaintenaceModeSubscriber] Maintenance mode enabled. Accessing site not possible!", LogContext::SSK_BUNDLE());
 
-        // TODO documentation
-
         $sContent = $this->twig->render('@SurvivalKit/maintenance_mode.twig');
         $event->setResponse(new Response($sContent, Response::HTTP_SERVICE_UNAVAILABLE));
         $event->stopPropagation();

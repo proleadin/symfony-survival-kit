@@ -1,4 +1,4 @@
 survival_kit:
-    resource: "../../Controller"
+    resource: "../src/Controller"
     prefix: /
     type: annotation

@@ -27,4 +27,9 @@ class SurvivalKitBundle extends Bundle
             Facade::setFacadesContainer($this->container->get(Facade::CONTAINER));
         }
     }
+
+    public function getPath(): string
+    {
+        return \dirname(__DIR__);
+    }
 }

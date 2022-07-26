@@ -16,14 +16,14 @@ So there are a few rules:
 
 ## This bundle provides the following:
 ### Basic tools
-- [logging](Logging/README.md)
+- [logging](src/Logging/README.md)
 - http client
 
 ### Advanced tools
-- [github web-hook deployment](Deployment/README.md)
+- [github web-hook deployment](src/Deployment/README.md)
 
 ### Console Commands
-- [OPCache reset](Command/OPCacheResetCommand.php) `ssk:opcache-reset`
+- [OPCache reset](src/Command/OPCacheResetCommand.php) `ssk:opcache-reset`
 
 ### Built-in Event Subscribers
 - request body subscriber

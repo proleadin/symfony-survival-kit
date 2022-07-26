@@ -4,7 +4,7 @@
     "type": "symfony-bundle",
     "description": "Symfony survival kit",
     "require": {
-        "guzzlehttp/guzzle": "^7.4.4",
+        "guzzlehttp/guzzle": "^7.4.5",
         "monolog/monolog": "^2.0",
         "myclabs/php-enum": "^1.7",
         "php": "^7.4",
@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Leadin\\SurvivalKitBundle\\": "/"
+            "Leadin\\SurvivalKitBundle\\": "src/"
         }
     }
 }

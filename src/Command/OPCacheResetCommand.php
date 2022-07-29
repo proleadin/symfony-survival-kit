@@ -48,9 +48,17 @@ class OPCacheResetCommand extends Command
             $aRequestOptions = [
                 RequestOptions::HEADERS => ['Authorization' => 'Bearer ' . $this->sAuthorizationToken]
             ];
-            $this->httpClient->get($sUrl, $aRequestOptions, "[OPCacheResetCommand] OPCache reset", LogContext::INTERNAL_TOOLS());
+            $response = $this->httpClient->get($sUrl, $aRequestOptions, "[OPCacheResetCommand] OPCache reset", LogContext::INTERNAL_TOOLS());
+            $sResponseBody = $response->getBody()->getContents();
+            $iHttpCode = $response->getStatusCode();
+            $decodedResponse = \json_decode($sResponseBody);
+            if (!isset($decodedResponse->success) || false === $decodedResponse->success) {
+                $io->error("OPCache reset failed: httpCode $iHttpCode | $sResponseBody");
+                return;
+            }
         } catch (HttpClientException $e) {
             $io->error("OPCache reset failed: httpCode: {$e->getCode()} | {$e->getMessage()}");
+            return;
         }
 
         $io->success('OPCache reset succeed');

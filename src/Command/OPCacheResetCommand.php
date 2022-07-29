@@ -54,6 +54,8 @@ class OPCacheResetCommand extends Command
             $decodedResponse = \json_decode($sResponseBody);
             if (!isset($decodedResponse->success) || false === $decodedResponse->success) {
                 $io->error("OPCache reset failed: httpCode $iHttpCode | $sResponseBody");
+
+                return Command::FAILURE;
             }
         } catch (HttpClientException $e) {
             $io->error("OPCache reset failed: httpCode: {$e->getCode()} | {$e->getMessage()}");

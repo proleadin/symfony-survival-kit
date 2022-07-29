@@ -6,7 +6,7 @@ use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 use Leadin\SurvivalKitBundle\HttpHelper\HttpServerHelper\ITokenAuthenticatedController;
 
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -18,7 +18,7 @@ class InternalToolsController extends AbstractController implements ITokenAuthen
     /**
      * @Route("/opcache-reset", name="opcache_reset", methods={"GET"})
      */
-    public function opcacheReset(): Response
+    public function opcacheReset(): JsonResponse
     {
         try {
             \opcache_reset();
@@ -26,10 +26,13 @@ class InternalToolsController extends AbstractController implements ITokenAuthen
         } catch (\Throwable $e) {
             Logger::error("[InternalToolsController] opCache reset failed : {$e->getMessage()}", LogContext::INTERNAL_TOOLS());
 
-            return new Response($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return new Response("", Response::HTTP_OK);
+        return new JsonResponse(['success' => true]);
     }
 
     /**

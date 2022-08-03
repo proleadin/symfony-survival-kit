@@ -33,10 +33,10 @@ class GithubDeploymentService implements IGithubDeploymentService
     public function deploy(PullRequest $pullRequest): void
     {
         if (!$pullRequest->isPullRequestClosed()) {
-            Logger::info("[GithubDeploymentService] PullRequest not closed. Deployment not proceed", LogContext::DEPLOYMENT());
+            Logger::debug("[GithubDeploymentService] PullRequest not closed. Deployment not proceed", LogContext::DEPLOYMENT());
             return;
         } else if (!$pullRequest->isPullRequestMerged()) {
-            Logger::info("[GithubDeploymentService] PullRequest not merged. Deployment not proceed", LogContext::DEPLOYMENT());
+            Logger::debug("[GithubDeploymentService] PullRequest not merged. Deployment not proceed", LogContext::DEPLOYMENT());
             return;
         }
 

@@ -2,7 +2,7 @@
 
 namespace Leadin\SurvivalKitBundle\Controller;
 
-use Leadin\SurvivalKitBundle\Deployment\GithubDeploymentException;
+use Leadin\SurvivalKitBundle\Deployment\Exception\GithubDeploymentException;
 use Leadin\SurvivalKitBundle\Deployment\Github\PullRequest;
 use Leadin\SurvivalKitBundle\Deployment\Github\IGithubDeploymentService;
 use Leadin\SurvivalKitBundle\Event\GithubDeploymentEvent;

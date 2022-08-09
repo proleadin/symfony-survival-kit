@@ -6,7 +6,7 @@ use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 
 use Leadin\SurvivalKitBundle\Deployment\DeploymentCommand;
-use Leadin\SurvivalKitBundle\Deployment\GithubDeploymentException;
+use Leadin\SurvivalKitBundle\Deployment\Exception\GithubDeploymentException;
 
 /**
  * Executes deployment commands for the request coming from Github webhook

@@ -37,6 +37,9 @@ class GithubDeploymentService implements IGithubDeploymentService
         } else if (!$pullRequest->isPullRequestMerged()) {
             Logger::debug("[GithubDeploymentService] PullRequest not merged. Deployment not proceed", LogContext::DEPLOYMENT());
             return;
+        } else if ($pullRequest->hasMergeOnlyLabel()) {
+            Logger::notice("[GithubDeploymentService] 'merge-only' label found. Deployment not proceed", LogContext::DEPLOYMENT());
+            return;
         }
 
         $this->executeDeploymentCommands($pullRequest);

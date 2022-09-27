@@ -7,9 +7,10 @@ namespace Leadin\SurvivalKitBundle\Deployment\Github;
  */
 class PullRequest
 {
-    protected const CLOSED_ACTION = 'closed';
-    protected const COMPOSER_INSTALL_LABEL = 'composer-install';
-    protected const DOCTRINE_MIGRATION_LABEL = 'doctrine-migration';
+    protected const CLOSED_ACTION               = 'closed';
+    protected const COMPOSER_INSTALL_LABEL      = 'composer-install';
+    protected const DOCTRINE_MIGRATION_LABEL    = 'doctrine-migration';
+    protected const MERGE_ONLY_LABEL            = 'merge-only';
 
     protected array $aData;
     protected string $sAction;
@@ -54,6 +55,11 @@ class PullRequest
     public function hasComposerInstallLabel(): bool
     {
         return $this->findLabel(self::COMPOSER_INSTALL_LABEL);
+    }
+
+    public function hasMergeOnlyLabel(): bool
+    {
+        return $this->findLabel(self::MERGE_ONLY_LABEL);
     }
 
     protected function findLabel(string $sLabel): bool

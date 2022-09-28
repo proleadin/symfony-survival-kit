@@ -2,7 +2,6 @@
 
 namespace Leadin\SurvivalKitBundle\Controller;
 
-use Leadin\SurvivalKitBundle\Deployment\Exception\GithubDeploymentException;
 use Leadin\SurvivalKitBundle\Deployment\Github\PullRequest;
 use Leadin\SurvivalKitBundle\Deployment\Github\IGithubDeploymentService;
 use Leadin\SurvivalKitBundle\Event\GithubDeploymentEvent;
@@ -62,10 +61,6 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
             $githubDeploymentService = $event->getDeploymentService();
             $githubDeploymentService->deploy($event->getPullRequest());
             Logger::notice("[DeploymentController] Github webhook deployment succeeed", LogContext::DEPLOYMENT());
-        } catch (GithubDeploymentException $e) {
-            Logger::exception("[DeploymentController] Github webhook deployment failed", LogContext::DEPLOYMENT(), $e);
-
-            return $this->json(["message" => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $e) {
             Logger::exception("[DeploymentController] Github webhook deployment failed", LogContext::DEPLOYMENT(), $e);
 

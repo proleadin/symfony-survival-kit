@@ -6,7 +6,6 @@ use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 
 use Leadin\SurvivalKitBundle\Deployment\DeploymentCommand;
-use Leadin\SurvivalKitBundle\Deployment\Exception\GithubDeploymentException;
 
 /**
  * Executes deployment commands for the request coming from Github webhook
@@ -37,6 +36,9 @@ class GithubDeploymentService implements IGithubDeploymentService
             return;
         } else if (!$pullRequest->isPullRequestMerged()) {
             Logger::debug("[GithubDeploymentService] PullRequest not merged. Deployment not proceed", LogContext::DEPLOYMENT());
+            return;
+        } else if ($pullRequest->hasMergeOnlyLabel()) {
+            Logger::notice("[GithubDeploymentService] 'merge-only' label found. Deployment not proceed", LogContext::DEPLOYMENT());
             return;
         }
 

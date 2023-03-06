@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\Logging;
 
 use Leadin\SurvivalKitBundle\DependencyInjection\Facade;
+use Leadin\SurvivalKitBundle\Reflection\ReflectionHelper;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -11,6 +14,9 @@ use Psr\Log\LoggerInterface;
 class Logger extends Facade
 {
     private const CONTEXT   = 'context';
+    private const FROM      = 'from';
+    private const SOURCE    = 'source';
+
     private const EMERGENCY = 'emergency';
     private const ALERT     = 'alert';
     private const CRITICAL  = 'critical';
@@ -95,6 +101,20 @@ class Logger extends Facade
     }
 
     /**
+     * Exceptions that do not require immediate action but should typically
+     * be logged and monitored
+     */
+    public static function criticalException(string $sMessage, LogContext $logContext, \Throwable $e, array $aMetadata = []): void
+    {
+        $aExceptionMetadata = [
+            'message' => $e->getMessage(),
+            'at' => "{$e->getFile()}:{$e->getLine()}",
+            'trace' => $e->getTraceAsString()
+        ];
+        self::critical($sMessage, $logContext, \array_merge($aExceptionMetadata, $aMetadata));
+    }
+
+    /**
      * Action must be taken immediately
      */
     public static function alert(string $sMessage, LogContext $logContext, array $aMetadata = []): void
@@ -112,6 +132,27 @@ class Logger extends Facade
 
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::log($sLevel, $sMessage, \array_merge([self::CONTEXT => (string)$logContext], $aMetadata));
+        try {
+            $aDebugBacktrace = \debug_backtrace();
+            list($aTraceOfLogCall, $aTraceBeforeLogCall) = [...\array_filter(
+                $aDebugBacktrace,
+                static fn(array $aTrace) => $aTrace["file"] !== __FILE__
+            )];
+
+            self::log($sLevel, $sMessage, \array_merge([
+                self::CONTEXT => (string)$logContext,
+                self::FROM => ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]) . "::" . $aTraceBeforeLogCall["function"],
+                self::SOURCE => $aTraceOfLogCall["file"] . ":" . $aTraceOfLogCall["line"]
+            ], $aMetadata));
+        } catch (\Throwable $e) {
+            self::log(self::ERROR, "Logger failed to add log", [
+                self::CONTEXT => LogContext::SSK_BUNDLE(),
+                "errorMessage" => $e->getMessage(),
+                "debugBacktrace" => $aDebugBacktrace,
+                "logLevel" => $sLevel,
+                "logMessage" => $sMessage,
+                "logMetadata" => $aMetadata,
+            ]);
+        }
     }
 }

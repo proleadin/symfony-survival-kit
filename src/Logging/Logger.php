@@ -101,8 +101,7 @@ class Logger extends Facade
     }
 
     /**
-     * Exceptions that do not require immediate action but should typically
-     * be logged and monitored
+     * Critical conditions exception
      */
     public static function criticalException(string $sMessage, LogContext $logContext, \Throwable $e, array $aMetadata = []): void
     {

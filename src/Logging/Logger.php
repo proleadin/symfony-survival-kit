@@ -140,9 +140,13 @@ class Logger extends Facade
             $aTraceOfLogCall = \array_shift($aDebugBacktrace);
             $aTraceBeforeLogCall = \array_shift($aDebugBacktrace);
 
-            self::log($sLevel, $sMessage, \array_merge([
+            $sLogMessagePrefix = \sprintf(
+                "[%s::%s] ",
+                ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]),
+                $aTraceBeforeLogCall["function"]
+            );
+            self::log($sLevel, $sLogMessagePrefix . $sMessage, \array_merge([
                 self::CONTEXT => (string)$logContext,
-                self::FROM => ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]) . "::" . $aTraceBeforeLogCall["function"],
                 self::SOURCE => $aTraceOfLogCall["file"] . ":" . $aTraceOfLogCall["line"]
             ], $aMetadata));
         } catch (\Throwable $e) {

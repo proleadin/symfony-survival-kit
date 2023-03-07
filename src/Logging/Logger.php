@@ -14,7 +14,6 @@ use Psr\Log\LoggerInterface;
 class Logger extends Facade
 {
     private const CONTEXT   = 'context';
-    private const FROM      = 'from';
     private const SOURCE    = 'source';
 
     private const EMERGENCY = 'emergency';

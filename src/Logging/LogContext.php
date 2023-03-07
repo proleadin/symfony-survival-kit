@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\Logging;
 
@@ -13,7 +15,7 @@ use MyCLabs\Enum\Enum;
  * @method static self LONG_DEBUG()
  * @method static self SSK_BUNDLE()
  * @method static self INTERNAL_TOOLS()
- * 
+ *
  * Lists possible log contexts using private constants.
  * Can be extended if the service requires additional contexts.
  */

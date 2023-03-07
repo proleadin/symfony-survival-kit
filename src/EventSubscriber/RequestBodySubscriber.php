@@ -33,21 +33,22 @@ class RequestBodySubscriber implements EventSubscriberInterface
             return;
         }
 
-        $data = \json_decode($request->getContent(), true);
-        if (\json_last_error() !== JSON_ERROR_NONE) {
-            $sError = \json_last_error_msg();
+        try {
+            $data = \json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            $sError = $e->getMessage();
             Logger::info("Invalid json body: $sError", LogContext::SSK_BUNDLE(), [
                 "requestContent" => $request->getContent()
             ]);
 
             $response = new JsonResponse([
-                "message" => "Invalid request payload",
-                "error" => $sError
+                "s_message" => "Invalid request payload",
+                "error" => ["json decoding error" => [$sError]]
             ], JsonResponse::HTTP_BAD_REQUEST);
 
             $response->send();
-        } else {
-            $request->request->replace(\is_array($data) ? $data : []);
         }
+
+        $request->request->replace(\is_array($data) ? $data : []);
     }
 }

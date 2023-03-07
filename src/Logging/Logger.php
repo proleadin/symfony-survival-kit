@@ -132,11 +132,13 @@ class Logger extends Facade
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
         try {
-            $aDebugBacktrace = \debug_backtrace();
-            list($aTraceOfLogCall, $aTraceBeforeLogCall) = [...\array_filter(
-                $aDebugBacktrace,
+            $aDebugBacktrace = \array_filter(
+                \debug_backtrace(),
                 static fn(array $aTrace) => $aTrace["file"] !== __FILE__
-            )];
+            );
+
+            $aTraceOfLogCall = \array_shift($aDebugBacktrace);
+            $aTraceBeforeLogCall = \array_shift($aDebugBacktrace);
 
             self::log($sLevel, $sMessage, \array_merge([
                 self::CONTEXT => (string)$logContext,

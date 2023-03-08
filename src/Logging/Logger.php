@@ -132,7 +132,7 @@ class Logger extends Facade
     {
         try {
             $aDebugBacktrace = \array_filter(
-                \debug_backtrace(),
+                \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
                 static fn(array $aTrace) => $aTrace["file"] !== __FILE__
             );
 

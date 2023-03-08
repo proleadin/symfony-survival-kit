@@ -35,6 +35,7 @@ class RequestBodySubscriber implements EventSubscriberInterface
 
         try {
             $data = \json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+            $request->request->replace(\is_array($data) ? $data : []);
         } catch (\JsonException $e) {
             $sError = $e->getMessage();
             Logger::info("Invalid json body: $sError", LogContext::SSK_BUNDLE(), [
@@ -48,7 +49,5 @@ class RequestBodySubscriber implements EventSubscriberInterface
 
             $response->send();
         }
-
-        $request->request->replace(\is_array($data) ? $data : []);
     }
 }

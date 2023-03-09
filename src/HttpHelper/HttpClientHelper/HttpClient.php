@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\HttpHelper\HttpClientHelper;
 
 use Leadin\SurvivalKitBundle\Logging\Logger;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
-
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
@@ -29,51 +30,50 @@ class HttpClient
     /**
      * @throws HttpClientException
      */
-    public function get(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function get(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_GET, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_GET, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
     }
 
     /**
      * @throws HttpClientException
      */
-    public function post(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function post(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_POST, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_POST, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
     }
 
     /**
      * @throws HttpClientException
      */
-    public function put(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function put(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_PUT, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_PUT, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
     }
 
     /**
      * @throws HttpClientException
      */
-    public function patch(string $sUrl, array $aRequestOptions, string $sAction, LogContext $logContext, array $aLogMetadata = []): ResponseInterface
+    public function patch(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
     {
-        return $this->request(Request::METHOD_PATCH, $sUrl, $aRequestOptions, $sAction, $logContext, $aLogMetadata);
+        return $this->request(Request::METHOD_PATCH, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
     }
 
     private function request(
         string $sMethod,
         string $sUrl,
-        array $aRequestOptions,
+        array $aReqOptions,
         string $sAction,
         LogContext $logContext,
-        array $aLogMetadata = []
-    ): ResponseInterface
-    {
+        array $aLogData = []
+    ): ResponseInterface {
         try {
-            $aRequestOptions[RequestOptions::ON_STATS] = function (\GuzzleHttp\TransferStats $stats) use (&$sEffectiveUri) {
+            $aReqOptions[RequestOptions::ON_STATS] = function (\GuzzleHttp\TransferStats $stats) use (&$sEffectiveUri) {
                 $sEffectiveUri = $stats->getEffectiveUri();
             };
-            $aRequestOptions[RequestOptions::TIMEOUT] = $aRequestOptions[RequestOptions::TIMEOUT] ?? self::DEFAULT_REQUEST_TIMEOUT;
+            $aReqOptions[RequestOptions::TIMEOUT] = $aReqOptions[RequestOptions::TIMEOUT] ?? self::DEFAULT_REQUEST_TIMEOUT;
 
-            $response = $this->httpClient->request($sMethod, $sUrl, $aRequestOptions);
+            $response = $this->httpClient->request($sMethod, $sUrl, $aReqOptions);
             $sResponseBody = $response->getBody()->getContents();
             $response->getBody()->rewind();
 
@@ -83,10 +83,14 @@ class HttpClient
                 $sResponseBody = \utf8_encode($sResponseBody);
             }
 
-            Logger::debug("$sAction : succeed requesting $sMethod $sEffectiveUri - {$response->getStatusCode()}", $logContext, \array_merge($aLogMetadata, [
-                'response' => $sResponseBody,
-                'requestOptions' => $this->cleanRequestOptions($aRequestOptions)
-            ]));
+            Logger::debug(
+                "$sAction : succeed requesting $sMethod $sEffectiveUri - {$response->getStatusCode()}",
+                $logContext,
+                \array_merge($aLogData, [
+                    'response' => $sResponseBody,
+                    'requestOptions' => $this->cleanRequestOptions($aReqOptions)
+                ])
+            );
         } catch (GuzzleException $e) {
             if (\method_exists($e, 'hasResponse') && $e->hasResponse()) {
                 $response = $e->getResponse();
@@ -97,15 +101,14 @@ class HttpClient
                 $iHttpCode = $e->getCode();
             }
 
-            Logger::error("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogMetadata, [
+            Logger::error("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogData, [
                 'response' => $sMessage,
-                'requestOptions' => $this->cleanRequestOptions($aRequestOptions)
+                'requestOptions' => $this->cleanRequestOptions($aReqOptions)
             ]));
 
             throw new HttpClientException($sMessage, $iHttpCode);
-
         } catch (\Throwable $e) {
-            Logger::exception("$sAction : error while requesting $sMethod $sEffectiveUri", $logContext, $e, $aLogMetadata);
+            Logger::exception("$sAction : error while requesting $sMethod $sEffectiveUri", $logContext, $e, $aLogData);
 
             throw $e;
         }
@@ -113,32 +116,41 @@ class HttpClient
         return $response;
     }
 
-    private function cleanRequestOptions(array $aRequestOptions): array
+    private function cleanRequestOptions(array $aReqOptions): array
     {
-        unset($aRequestOptions[RequestOptions::ON_STATS]);
+        unset($aReqOptions[RequestOptions::ON_STATS]);
 
-        return $this->hideRequestSecrets($aRequestOptions);
+        return $this->hideRequestSecrets($aReqOptions);
     }
 
-    private function hideRequestSecrets(array $aRequestOptions): array
+    private function hideRequestSecrets(array $aReqOptions): array
     {
         // hide authorization header
-        if (isset($aRequestOptions[RequestOptions::HEADERS]['Authorization'])) {
-            $aRequestOptions[RequestOptions::HEADERS]['Authorization'] = '*****';
-        }
-
-        // hide basic authentication credentials
-        if (isset($aRequestOptions[RequestOptions::AUTH])) {
-            $aRequestOptions[RequestOptions::AUTH] = '*****';
-        }
-
-        // hide client certificate password
-        if (isset($aRequestOptions[RequestOptions::CERT]) && \is_array($aRequestOptions[RequestOptions::CERT])) {
-            if (isset($aRequestOptions[RequestOptions::CERT][1])) {
-                $aRequestOptions[RequestOptions::CERT][1] = '*****';
+        if (isset($aReqOptions[RequestOptions::HEADERS])) {
+            foreach ($aReqOptions[RequestOptions::HEADERS] as $sKey => $sValue) {
+                if (\strtolower($sKey) === 'authorization' || \strpos(\strtolower($sKey), 'key') !== false) {
+                    $aReqOptions[RequestOptions::HEADERS][$sKey] = '*****';
+                }
             }
         }
 
-        return $aRequestOptions;
+        // hide basic authentication credentials
+        if (isset($aReqOptions[RequestOptions::AUTH])) {
+            $aReqOptions[RequestOptions::AUTH] = '*****';
+        }
+
+        // hide basic authentication credentials
+        if (isset($aReqOptions[RequestOptions::SSL_KEY])) {
+            $aReqOptions[RequestOptions::SSL_KEY] = '*****';
+        }
+
+        // hide client certificate password
+        if (isset($aReqOptions[RequestOptions::CERT]) && \is_array($aReqOptions[RequestOptions::CERT])) {
+            if (isset($aReqOptions[RequestOptions::CERT][1])) {
+                $aReqOptions[RequestOptions::CERT][1] = '*****';
+            }
+        }
+
+        return $aReqOptions;
     }
 }

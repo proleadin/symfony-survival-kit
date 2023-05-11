@@ -141,7 +141,7 @@ class Logger extends Facade
 
             $sLogMessagePrefix = \sprintf(
                 "[%s::%s] ",
-                isset($aTraceBeforeLogCall["object"]) ? ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]) : "",
+                $aTraceBeforeLogCall && isset($aTraceBeforeLogCall["object"]) ? ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]) : "",
                 $aTraceBeforeLogCall["function"] ?? ""
             );
             self::log($sLevel, $sLogMessagePrefix . $sMessage, \array_merge([

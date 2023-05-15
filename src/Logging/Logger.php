@@ -133,7 +133,7 @@ class Logger extends Facade
         try {
             $aDebugBacktrace = \array_filter(
                 \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
-                static fn(array $aTrace) => $aTrace["file"] !== __FILE__
+                static fn(array $aTrace) => isset($aTrace["file"]) && $aTrace["file"] !== __FILE__
             );
 
             $aTraceOfLogCall = \array_shift($aDebugBacktrace);
@@ -141,18 +141,18 @@ class Logger extends Facade
 
             $sLogMessagePrefix = \sprintf(
                 "[%s::%s] ",
-                ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]),
-                $aTraceBeforeLogCall["function"]
+                $aTraceBeforeLogCall && isset($aTraceBeforeLogCall["object"]) ? ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]) : "",
+                $aTraceBeforeLogCall["function"] ?? ""
             );
             self::log($sLevel, $sLogMessagePrefix . $sMessage, \array_merge([
                 self::CONTEXT => (string)$logContext,
-                self::SOURCE => $aTraceOfLogCall["file"] . ":" . $aTraceOfLogCall["line"]
+                self::SOURCE => \sprintf("%s:%s", $aTraceOfLogCall["file"] ?? "", $aTraceOfLogCall["line"] ?? "")
             ], $aMetadata));
         } catch (\Throwable $e) {
             self::log(self::ERROR, "Logger failed to add log", [
                 self::CONTEXT => LogContext::SSK_BUNDLE(),
                 "errorMessage" => $e->getMessage(),
-                "debugBacktrace" => $aDebugBacktrace,
+                "debugBacktrace" => $aDebugBacktrace ?? \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
                 "logLevel" => $sLevel,
                 "logMessage" => $sMessage,
                 "logMetadata" => $aMetadata,

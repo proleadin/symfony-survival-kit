@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\Deployment;
 
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
-
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -67,7 +68,7 @@ class DeploymentCommand
     /**
      * Creates the .env.local.php file with the environment variables
      * Symfony will not spend time parsing the .env files
-     * 
+     *
      * @throws ProcessFailedException
      */
     public function composerDumpEnv(): void
@@ -79,16 +80,16 @@ class DeploymentCommand
     /**
      * @throws ProcessFailedException
      */
-    public function opcacheReset() : void
+    public function opcacheReset(): void
     {
         \opcache_reset();
-        Logger::notice("[DeploymentCommand] opcache reset succeeded", LogContext::DEPLOYMENT());
+        Logger::notice("OPcache reset succeeded", LogContext::DEPLOYMENT());
     }
 
     /**
      * @throws ProcessFailedException
      */
-    public function doctrineMigrationsMigrate() : void
+    public function doctrineMigrationsMigrate(): void
     {
         $process = Process::fromShellCommandline("bin/console doctrine:migrations:migrate -n", $this->sProjectDir);
         $this->execute($process, "Doctrine Migrations Migrate");
@@ -97,7 +98,7 @@ class DeploymentCommand
     /**
      * For the Symfony Messenger component
      * This will signal to each worker that it should finish the message it's currently handling and shut down gracefully.
-     * 
+     *
      * @throws ProcessFailedException
      */
     public function restartMessengerWorkers(): void
@@ -111,13 +112,13 @@ class DeploymentCommand
      */
     protected function execute(Process $process, string $sCommandName): void
     {
-        Logger::notice("[DeploymentCommand] running $sCommandName", LogContext::DEPLOYMENT());
+        Logger::notice("Running $sCommandName", LogContext::DEPLOYMENT());
         $process->run();
         if (!$process->isSuccessful()) {
             $e = new ProcessFailedException($process);
-            Logger::exception("[DeploymentCommand] $sCommandName failed", LogContext::DEPLOYMENT(), $e);
+            Logger::exception("$sCommandName failed", LogContext::DEPLOYMENT(), $e);
             throw $e;
         }
-        Logger::notice("[DeploymentCommand] $sCommandName succeeded", LogContext::DEPLOYMENT(), ['output' => $process->getOutput()]);
+        Logger::notice("$sCommandName succeeded", LogContext::DEPLOYMENT(), ['output' => $process->getOutput()]);
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\Deployment\Github;
 
@@ -37,14 +39,14 @@ class PullRequest
         return $this->sAction;
     }
 
-    public function isPullRequestClosed(): bool
+    public function isClosed(): bool
     {
         return $this->sAction === self::CLOSED_ACTION;
     }
 
-    public function isPullRequestMerged(): bool
+    public function isMerged(): bool
     {
-        return $this->bMerged;
+        return $this->isClosed() && $this->bMerged;
     }
 
     public function hasDoctrineMigrationLabel(): bool

@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\Deployment\Github;
 
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
-
 use Leadin\SurvivalKitBundle\Deployment\DeploymentCommand;
 
 /**
@@ -16,7 +17,7 @@ class GithubDeploymentService implements IGithubDeploymentService
 
     /**
      * @required
-     * 
+     *
      * {@inheritdoc}
      */
     public function setDeploymentCommand(DeploymentCommand $deploymentCommand): self
@@ -31,18 +32,11 @@ class GithubDeploymentService implements IGithubDeploymentService
      */
     public function deploy(PullRequest $pullRequest): void
     {
-        if (!$pullRequest->isPullRequestClosed()) {
-            Logger::debug("[GithubDeploymentService] PullRequest not closed. Deployment not proceed", LogContext::DEPLOYMENT());
-            return;
-        } else if (!$pullRequest->isPullRequestMerged()) {
-            Logger::debug("[GithubDeploymentService] PullRequest not merged. Deployment not proceed", LogContext::DEPLOYMENT());
-            return;
-        } else if ($pullRequest->hasMergeOnlyLabel()) {
-            Logger::notice("[GithubDeploymentService] 'merge-only' label found. Deployment not proceed", LogContext::DEPLOYMENT());
-            return;
+        if ($pullRequest->hasMergeOnlyLabel()) {
+            Logger::notice("Deployment not proceed, 'merge-only' label found", LogContext::DEPLOYMENT());
+        } else {
+            $this->executeDeploymentCommands($pullRequest);
         }
-
-        $this->executeDeploymentCommands($pullRequest);
     }
 
     /**
@@ -57,7 +51,7 @@ class GithubDeploymentService implements IGithubDeploymentService
         $pullRequest->hasDoctrineMigrationLabel() && $this->deploymentCommand->doctrineMigrationsMigrate();
 
         $this->deploymentCommand->symfonyClearCache();
-        $this->deploymentCommand->opcacheReset();
         $this->deploymentCommand->composerDumpEnv();
+        $this->deploymentCommand->opcacheReset();
     }
 }

@@ -27,9 +27,6 @@ services:
         calls:
             - [setHttpClient, ['@GuzzleHttp\Client']]
 
-    Leadin\SurvivalKitBundle\Deployment\Github\PullRequest:
-        public: true
-
     Leadin\SurvivalKitBundle\Deployment\DeploymentCommand:
         public: true
         arguments:

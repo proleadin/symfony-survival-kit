@@ -43,7 +43,7 @@ class DeploymentCommand
      */
     public function composerInstall(): void
     {
-        $process = Process::fromShellCommandline("composer install", $this->sProjectDir);
+        $process = Process::fromShellCommandline("composer install --no-dev", $this->sProjectDir);
         $this->execute($process, "Composer install");
     }
 

@@ -7,7 +7,7 @@
         "guzzlehttp/guzzle": "^7.4.5",
         "monolog/monolog": "^2.0",
         "myclabs/php-enum": "^1.7",
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "sensio/framework-extra-bundle": "^6.1",
         "symfony/asset": "^5.3",
         "symfony/flex": "^1.3",

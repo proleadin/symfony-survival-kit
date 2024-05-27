@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class HttpClient
 {
+    private const DEFAULT_CONNECT_TIMEOUT = 10.00;
     private const DEFAULT_REQUEST_TIMEOUT = 30.00;
 
     private ClientInterface $httpClient;
@@ -72,6 +73,7 @@ class HttpClient
                 $sEffectiveUri = $stats->getEffectiveUri();
             };
             $aReqOptions[RequestOptions::TIMEOUT] = $aReqOptions[RequestOptions::TIMEOUT] ?? self::DEFAULT_REQUEST_TIMEOUT;
+            $aReqOptions[RequestOptions::CONNECT_TIMEOUT] = $aReqOptions[RequestOptions::CONNECT_TIMEOUT] ?? self::DEFAULT_CONNECT_TIMEOUT;
 
             $response = $this->httpClient->request($sMethod, $sUrl, $aReqOptions);
             $sResponseBody = $response->getBody()->getContents();

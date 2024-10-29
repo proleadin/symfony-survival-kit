@@ -31,33 +31,57 @@ class HttpClient
     /**
      * @throws HttpClientException
      */
-    public function get(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
-    {
-        return $this->request(Request::METHOD_GET, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
+    public function get(
+        string $sUrl,
+        array $aReqOptions,
+        string $sAction,
+        LogContext $logContext,
+        array $aLogData = [],
+        bool $bErrorLogLevelForHttpRequest = true
+    ): ResponseInterface {
+        return $this->request(Request::METHOD_GET, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
     }
 
     /**
      * @throws HttpClientException
      */
-    public function post(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
-    {
-        return $this->request(Request::METHOD_POST, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
+    public function post(
+        string $sUrl,
+        array $aReqOptions,
+        string $sAction,
+        LogContext $logContext,
+        array $aLogData = [],
+        bool $bErrorLogLevelForHttpRequest = true
+    ): ResponseInterface {
+        return $this->request(Request::METHOD_POST, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
     }
 
     /**
      * @throws HttpClientException
      */
-    public function put(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
-    {
-        return $this->request(Request::METHOD_PUT, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
+    public function put(
+        string $sUrl,
+        array $aReqOptions,
+        string $sAction,
+        LogContext $logContext,
+        array $aLogData = [],
+        bool $bErrorLogLevelForHttpRequest = true
+    ): ResponseInterface {
+        return $this->request(Request::METHOD_PUT, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
     }
 
     /**
      * @throws HttpClientException
      */
-    public function patch(string $sUrl, array $aReqOptions, string $sAction, LogContext $logContext, array $aLogData = []): ResponseInterface
-    {
-        return $this->request(Request::METHOD_PATCH, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData);
+    public function patch(
+        string $sUrl,
+        array $aReqOptions,
+        string $sAction,
+        LogContext $logContext,
+        array $aLogData = [],
+        bool $bErrorLogLevelForHttpRequest = true
+    ): ResponseInterface {
+        return $this->request(Request::METHOD_PATCH, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
     }
 
     private function request(
@@ -66,7 +90,8 @@ class HttpClient
         array $aReqOptions,
         string $sAction,
         LogContext $logContext,
-        array $aLogData = []
+        array $aLogData,
+        bool $bErrorLogLevelForHttpRequest
     ): ResponseInterface {
         try {
             $aReqOptions[RequestOptions::ON_STATS] = function (\GuzzleHttp\TransferStats $stats) use (&$sEffectiveUri) {
@@ -103,7 +128,9 @@ class HttpClient
                 $iHttpCode = $e->getCode();
             }
 
-            Logger::error("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogData, [
+            $sLogLevel = $bErrorLogLevelForHttpRequest ? 'error' : 'notice';
+
+            Logger::$sLogLevel("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogData, [
                 'response' => $sMessage,
                 'requestOptions' => $this->cleanRequestOptions($aReqOptions)
             ]));

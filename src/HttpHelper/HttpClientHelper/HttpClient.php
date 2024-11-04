@@ -37,9 +37,9 @@ class HttpClient
         string $sAction,
         LogContext $logContext,
         array $aLogData = [],
-        bool $bErrorLogLevelForHttpRequest = true
+        bool $bLogFailedRequest = true
     ): ResponseInterface {
-        return $this->request(Request::METHOD_GET, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
+        return $this->request(Request::METHOD_GET, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bLogFailedRequest);
     }
 
     /**
@@ -51,9 +51,9 @@ class HttpClient
         string $sAction,
         LogContext $logContext,
         array $aLogData = [],
-        bool $bErrorLogLevelForHttpRequest = true
+        bool $bLogFailedRequest = true
     ): ResponseInterface {
-        return $this->request(Request::METHOD_POST, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
+        return $this->request(Request::METHOD_POST, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bLogFailedRequest);
     }
 
     /**
@@ -65,9 +65,9 @@ class HttpClient
         string $sAction,
         LogContext $logContext,
         array $aLogData = [],
-        bool $bErrorLogLevelForHttpRequest = true
+        bool $bLogFailedRequest = true
     ): ResponseInterface {
-        return $this->request(Request::METHOD_PUT, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
+        return $this->request(Request::METHOD_PUT, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bLogFailedRequest);
     }
 
     /**
@@ -79,9 +79,9 @@ class HttpClient
         string $sAction,
         LogContext $logContext,
         array $aLogData = [],
-        bool $bErrorLogLevelForHttpRequest = true
+        bool $bLogFailedRequest = true
     ): ResponseInterface {
-        return $this->request(Request::METHOD_PATCH, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bErrorLogLevelForHttpRequest);
+        return $this->request(Request::METHOD_PATCH, $sUrl, $aReqOptions, $sAction, $logContext, $aLogData, $bLogFailedRequest);
     }
 
     private function request(
@@ -91,7 +91,7 @@ class HttpClient
         string $sAction,
         LogContext $logContext,
         array $aLogData,
-        bool $bErrorLogLevelForHttpRequest
+        bool $bLogFailedRequest
     ): ResponseInterface {
         try {
             $aReqOptions[RequestOptions::ON_STATS] = function (\GuzzleHttp\TransferStats $stats) use (&$sEffectiveUri) {
@@ -128,12 +128,12 @@ class HttpClient
                 $iHttpCode = $e->getCode();
             }
 
-            $sLogLevel = $bErrorLogLevelForHttpRequest ? 'error' : 'notice';
-
-            Logger::$sLogLevel("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogData, [
-                'response' => $sMessage,
-                'requestOptions' => $this->cleanRequestOptions($aReqOptions)
-            ]));
+            if ($bLogFailedRequest) {
+                Logger::error("$sAction : error while requesting $sMethod $sEffectiveUri - $iHttpCode", $logContext, \array_merge($aLogData, [
+                    'response' => $sMessage,
+                    'requestOptions' => $this->cleanRequestOptions($aReqOptions)
+                ]));
+            }
 
             throw new HttpClientException($sMessage, $iHttpCode);
         } catch (\Throwable $e) {

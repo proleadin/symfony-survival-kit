@@ -54,10 +54,10 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
         }
 
         $pullRequest = new PullRequest($sAction, $aPullRequestData);
-        if (!$pullRequest->isMerged()) {
-            Logger::debug("PullRequest not merged, deployment not proceed", LogContext::DEPLOYMENT());
+        if (!$pullRequest->isMergedIntoDefaultBranch()) {
+            Logger::debug("PullRequest not merged into default branch, deployment not proceed", LogContext::DEPLOYMENT());
 
-            return $this->json(["message" => "PullRequest not merged, deployment not proceed"]);
+            return $this->json(["message" => "PullRequest not merged into default branch, deployment not proceed"]);
         }
 
         $event = new GithubDeploymentEvent($pullRequest, $this->githubDeploymentService);

@@ -9,14 +9,16 @@ namespace Leadin\SurvivalKitBundle\Deployment\Github;
  */
 class PullRequest
 {
-    protected const CLOSED_ACTION               = 'closed';
-    protected const COMPOSER_INSTALL_LABEL      = 'composer-install';
-    protected const DOCTRINE_MIGRATION_LABEL    = 'doctrine-migration';
-    protected const MERGE_ONLY_LABEL            = 'merge-only';
+    protected const CLOSED_ACTION = 'closed';
+    protected const COMPOSER_INSTALL_LABEL = 'composer-install';
+    protected const DOCTRINE_MIGRATION_LABEL = 'doctrine-migration';
+    protected const MERGE_ONLY_LABEL = 'merge-only';
+    protected const DEFAULT_BRANCH = 'master';
 
     protected array $aData;
     protected string $sAction;
     protected bool $bMerged;
+    protected string $sTargetBranch;
     protected array $aLabels = [];
 
     public function __construct(string $sAction, array $aData)
@@ -24,6 +26,7 @@ class PullRequest
         $this->aData = $aData;
         $this->sAction = $sAction;
         $this->bMerged = $aData['merged'] ?? false;
+        $this->sTargetBranch = $aData['base']['ref'] ?? '';
         if (isset($aData['labels']) && \is_array($aData['labels'])) {
             \array_map(fn(array $aLabel) => $this->aLabels[] = $aLabel['name'] ?? null, $aData['labels']);
         }
@@ -44,9 +47,9 @@ class PullRequest
         return $this->sAction === self::CLOSED_ACTION;
     }
 
-    public function isMerged(): bool
+    public function isMergedIntoDefaultBranch(): bool
     {
-        return $this->isClosed() && $this->bMerged;
+        return $this->isClosed() && $this->bMerged && $this->sTargetBranch === self::DEFAULT_BRANCH;
     }
 
     public function hasDoctrineMigrationLabel(): bool

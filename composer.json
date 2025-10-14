@@ -5,7 +5,7 @@
     "description": "Symfony survival kit",
     "require": {
         "guzzlehttp/guzzle": "^7.4.5",
-        "monolog/monolog": "^2.0",
+        "monolog/monolog": "^3.0",
         "myclabs/php-enum": "^1.7",
         "php": "^7.4|^8.0",
         "sensio/framework-extra-bundle": "^6.1",
@@ -23,6 +23,11 @@
     "autoload": {
         "psr-4": {
             "Leadin\\SurvivalKitBundle\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
         }
     }
 }

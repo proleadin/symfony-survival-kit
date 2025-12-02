@@ -42,7 +42,7 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
         Logger::debug("Github webhook deployment request received", LogContext::DEPLOYMENT(), ['payload' => $request->getContent()]);
 
         $sAction = $request->request->get('action');
-        $aPullRequestData = $request->request->get('pull_request');
+        $aPullRequestData = $request->request->all('pull_request');
         if (!$sAction) {
             Logger::error("Github webhook bad request : field 'action' must not be blank", LogContext::DEPLOYMENT());
 

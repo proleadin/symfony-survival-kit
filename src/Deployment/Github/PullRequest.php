@@ -13,6 +13,8 @@ class PullRequest
     protected const COMPOSER_INSTALL_LABEL = 'composer-install';
     protected const DOCTRINE_MIGRATION_LABEL = 'doctrine-migration';
     protected const MERGE_ONLY_LABEL = 'merge-only';
+    protected const ASSETS_COMPILE_LABEL = 'assets-compile';
+    protected const ASSETS_INSTALL_LABEL = 'assets-install';
     protected const DEFAULT_BRANCH = 'master';
 
     protected array $aData;
@@ -65,6 +67,16 @@ class PullRequest
     public function hasMergeOnlyLabel(): bool
     {
         return $this->findLabel(self::MERGE_ONLY_LABEL);
+    }
+
+    public function hasAssetsCompileLabel(): bool
+    {
+        return $this->findLabel(self::ASSETS_COMPILE_LABEL);
+    }
+
+    public function hasAssetsInstallLabel(): bool
+    {
+        return $this->findLabel(self::ASSETS_INSTALL_LABEL);
     }
 
     protected function findLabel(string $sLabel): bool

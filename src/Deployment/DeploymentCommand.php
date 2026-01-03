@@ -110,6 +110,24 @@ class DeploymentCommand
     /**
      * @throws ProcessFailedException
      */
+    public function compileAssets(): void
+    {
+        $process = Process::fromShellCommandline("bin/console asset-map:compile", $this->sProjectDir);
+        $this->execute($process, "Assets compile");
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
+    public function installAssets(): void
+    {
+        $process = Process::fromShellCommandline("bin/console importmap:install", $this->sProjectDir);
+        $this->execute($process, "Assets install");
+    }
+
+    /**
+     * @throws ProcessFailedException
+     */
     protected function execute(Process $process, string $sCommandName): void
     {
         Logger::notice("Running $sCommandName", LogContext::DEPLOYMENT());

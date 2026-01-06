@@ -49,6 +49,8 @@ class GithubDeploymentService implements IGithubDeploymentService
         $pullRequest->hasComposerInstallLabel() && $this->deploymentCommand->composerInstall();
         $this->deploymentCommand->composerDumpAutoload();
         $pullRequest->hasDoctrineMigrationLabel() && $this->deploymentCommand->doctrineMigrationsMigrate();
+        $pullRequest->hasAssetsInstallLabel() && $this->deploymentCommand->installAssets();
+        $pullRequest->hasAssetsCompileLabel() && $this->deploymentCommand->compileAssets();
 
         $this->deploymentCommand->symfonyClearCache();
         $this->deploymentCommand->composerDumpEnv();

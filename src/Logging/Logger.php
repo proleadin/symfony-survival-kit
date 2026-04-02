@@ -74,7 +74,7 @@ class Logger extends Facade
      */
     public static function error(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::ERROR, $sMessage, $logContext, $aMetadata);
+        self::logContext(self::ERROR, $sMessage, $logContext, $aMetadata + self::getTrace());
     }
 
     /**
@@ -96,7 +96,7 @@ class Logger extends Facade
      */
     public static function critical(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::CRITICAL, $sMessage, $logContext, $aMetadata);
+        self::logContext(self::CRITICAL, $sMessage, $logContext, $aMetadata + self::getTrace());
     }
 
     /**
@@ -117,7 +117,7 @@ class Logger extends Facade
      */
     public static function alert(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::ALERT, $sMessage, $logContext, $aMetadata);
+        self::logContext(self::ALERT, $sMessage, $logContext, $aMetadata + self::getTrace());
     }
 
     /**
@@ -125,7 +125,7 @@ class Logger extends Facade
      */
     public static function emergency(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::EMERGENCY, $sMessage, $logContext, $aMetadata);
+        self::logContext(self::EMERGENCY, $sMessage, $logContext, $aMetadata + self::getTrace());
     }
 
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
@@ -158,5 +158,15 @@ class Logger extends Facade
                 "logMetadata" => $aMetadata,
             ]);
         }
+    }
+
+    private static function getTrace(): array
+    {
+        $e = new \Exception();
+        $reflection = new \ReflectionClass($e);
+        $property = $reflection->getProperty('trace');
+        $property->setValue($e, \array_slice($e->getTrace(), 2));
+
+        return ['trace' => $e->getTraceAsString()];
     }
 }

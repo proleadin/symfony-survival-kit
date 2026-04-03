@@ -150,7 +150,7 @@ class Logger extends Facade
             ], $aMetadata));
         } catch (\Throwable $e) {
             self::log(self::ERROR, "Logger failed to add log", [
-                self::CONTEXT => LogContext::SSK_BUNDLE(),
+                self::CONTEXT => (string) LogContext::SSK_BUNDLE(),
                 "errorMessage" => $e->getMessage(),
                 "debugBacktrace" => $aDebugBacktrace ?? \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
                 "logLevel" => $sLevel,
@@ -162,11 +162,20 @@ class Logger extends Facade
 
     private static function getTrace(): array
     {
-        $e = new \Exception();
-        $reflection = new \ReflectionClass($e);
-        $property = $reflection->getProperty('trace');
-        $property->setValue($e, \array_slice($e->getTrace(), 2));
+        $sTrace = '';
+        try {
+            $e = new \Exception();
+            $reflection = new \ReflectionClass($e);
+            $property = $reflection->getProperty('trace');
+            $property->setValue($e, \array_slice($e->getTrace(), 2));
+            $sTrace = $e->getTraceAsString();
+        } catch (\Throwable $e) {
+            self::log(self::ERROR, "Logger failed to get trace", [
+                self::CONTEXT => (string) LogContext::SSK_BUNDLE(),
+                "errorMessage" => $e->getMessage(),
+            ]);
+        }
 
-        return ['trace' => $e->getTraceAsString()];
+        return ['trace' => $sTrace];
     }
 }

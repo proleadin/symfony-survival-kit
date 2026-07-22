@@ -7,6 +7,7 @@ namespace Leadin\SurvivalKitBundle\Logging;
 use Leadin\SurvivalKitBundle\DependencyInjection\Facade;
 use Leadin\SurvivalKitBundle\Reflection\ReflectionHelper;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * LoggerInterface service facade. Allows calling Logger statically.
@@ -139,12 +140,15 @@ class Logger extends Facade
             $aTraceOfLogCall = \array_shift($aDebugBacktrace);
             $aTraceBeforeLogCall = \array_shift($aDebugBacktrace);
 
-            $sLogMessagePrefix = \sprintf(
-                "[%s::%s] ",
-                $aTraceBeforeLogCall && isset($aTraceBeforeLogCall["object"]) ? ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]) : "",
-                $aTraceBeforeLogCall["function"] ?? ""
-            );
-            self::log($sLevel, $sLogMessagePrefix . $sMessage, \array_merge([
+            $sLogClass = '';
+            $sLogFunction = $aTraceBeforeLogCall["function"] ?? '';
+            if (isset($aTraceBeforeLogCall["object"])) {
+                $sLogClass = $aTraceBeforeLogCall["object"] instanceof LazyObjectInterface
+                    ? ReflectionHelper::getClassShortName(\get_parent_class($aTraceBeforeLogCall["object"]) ?: $aTraceBeforeLogCall["object"])
+                    : ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]);
+            }
+
+            self::log($sLevel, "[$sLogClass::$sLogFunction] " . $sMessage, \array_merge([
                 self::CONTEXT => (string)$logContext,
                 self::SOURCE => \sprintf("%s:%s", $aTraceOfLogCall["file"] ?? "", $aTraceOfLogCall["line"] ?? "")
             ], $aMetadata));

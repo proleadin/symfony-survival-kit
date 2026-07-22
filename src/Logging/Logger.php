@@ -144,7 +144,7 @@ class Logger extends Facade
             $sLogFunction = $aTraceBeforeLogCall["function"] ?? '';
             if (isset($aTraceBeforeLogCall["object"])) {
                 $sLogClass = $aTraceBeforeLogCall["object"] instanceof LazyObjectInterface
-                    ? ReflectionHelper::getClassShortName(\get_parent_class($aTraceBeforeLogCall["object"]))
+                    ? ReflectionHelper::getClassShortName(\get_parent_class($aTraceBeforeLogCall["object"]) ?: $aTraceBeforeLogCall["object"])
                     : ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]);
             }
 

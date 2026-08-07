@@ -18,9 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/deployment", name="survival_kit_deployment_")
- */
+#[Route('/deployment', name: 'survival_kit_deployment_')]
 class DeploymentController extends AbstractController implements ITokenAuthenticatedController
 {
     private EventDispatcherInterface $eventDispatcher;
@@ -34,9 +32,7 @@ class DeploymentController extends AbstractController implements ITokenAuthentic
         $this->githubDeploymentService = $githubDeploymentService;
     }
 
-    /**
-     * @Route("/github-webhook", name="github_webhook", methods={"POST"})
-     */
+    #[Route('/github-webhook', name: 'github_webhook', methods: ['POST'])]
     public function githubWebhook(Request $request): JsonResponse
     {
         Logger::debug("Github webhook deployment request received", LogContext::DEPLOYMENT(), ['payload' => $request->getContent()]);

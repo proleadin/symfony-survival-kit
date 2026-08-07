@@ -1,23 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Leadin\SurvivalKitBundle\Controller;
 
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 use Leadin\SurvivalKitBundle\HttpHelper\HttpServerHelper\ITokenAuthenticatedController;
-
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/internal-tools", name="survival_kit_internal_tools_");
- */
+#[Route('/internal-tools', name: 'survival_kit_internal_tools_')]
 class InternalToolsController extends AbstractController implements ITokenAuthenticatedController
 {
-    /**
-     * @Route("/opcache-reset", name="opcache_reset", methods={"GET"})
-     */
+    #[Route('/opcache-reset', name: 'opcache_reset', methods: ['GET'])]
     public function opcacheReset(): JsonResponse
     {
         try {

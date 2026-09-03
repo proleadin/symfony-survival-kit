@@ -11,11 +11,16 @@ use Symfony\Component\VarExporter\LazyObjectInterface;
 
 final class LogClassAndMethodProcessor implements ProcessorInterface
 {
-    private const SOURCE = 'source';
+    private const CONTEXT_SOURCE_KEY = 'source';
+    private const APP_CHANNEL = 'app';
 
     public function __invoke(array $aRecord): array
     {
         try {
+            if (($aRecord['channel'] ?? '') !== self::APP_CHANNEL) {
+                return $aRecord;
+            }
+
             $aDebugBacktrace = \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
             $iLogCall = $this->findLogCallIndex($aDebugBacktrace);
 
@@ -40,7 +45,7 @@ final class LogClassAndMethodProcessor implements ProcessorInterface
             $sLogFunction = $aTraceBeforeLogCall['function'] ?? '';
             $aRecord['message'] = "[$sLogClass::$sLogFunction] " . $aRecord['message'];
             $aRecord['context'] += [
-                self::SOURCE => \sprintf(
+                self::CONTEXT_SOURCE_KEY => \sprintf(
                     '%s:%s',
                     $aTraceOfLogCall['file'] ?? '',
                     $aTraceOfLogCall['line'] ?? ''

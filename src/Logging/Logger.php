@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Leadin\SurvivalKitBundle\Logging;
 
 use Leadin\SurvivalKitBundle\DependencyInjection\Facade;
-use Leadin\SurvivalKitBundle\Reflection\ReflectionHelper;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * LoggerInterface service facade. Allows calling Logger statically.
@@ -15,8 +13,6 @@ use Symfony\Component\VarExporter\LazyObjectInterface;
 class Logger extends Facade
 {
     private const CONTEXT   = 'context';
-    private const SOURCE    = 'source';
-
     private const EMERGENCY = 'emergency';
     private const ALERT     = 'alert';
     private const CRITICAL  = 'critical';
@@ -131,37 +127,9 @@ class Logger extends Facade
 
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        try {
-            $aDebugBacktrace = \array_filter(
-                \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
-                static fn(array $aTrace) => isset($aTrace["file"]) && $aTrace["file"] !== __FILE__
-            );
-
-            $aTraceOfLogCall = \array_shift($aDebugBacktrace);
-            $aTraceBeforeLogCall = \array_shift($aDebugBacktrace);
-
-            $sLogClass = '';
-            $sLogFunction = $aTraceBeforeLogCall["function"] ?? '';
-            if (isset($aTraceBeforeLogCall["object"])) {
-                $sLogClass = $aTraceBeforeLogCall["object"] instanceof LazyObjectInterface
-                    ? ReflectionHelper::getClassShortName(\get_parent_class($aTraceBeforeLogCall["object"]) ?: $aTraceBeforeLogCall["object"])
-                    : ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]);
-            }
-
-            self::log($sLevel, "[$sLogClass::$sLogFunction] " . $sMessage, \array_merge([
-                self::CONTEXT => (string)$logContext,
-                self::SOURCE => \sprintf("%s:%s", $aTraceOfLogCall["file"] ?? "", $aTraceOfLogCall["line"] ?? "")
-            ], $aMetadata));
-        } catch (\Throwable $e) {
-            self::log(self::ERROR, "Logger failed to add log", [
-                self::CONTEXT => (string) LogContext::SSK_BUNDLE(),
-                "errorMessage" => $e->getMessage(),
-                "debugBacktrace" => $aDebugBacktrace ?? \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
-                "logLevel" => $sLevel,
-                "logMessage" => $sMessage,
-                "logMetadata" => $aMetadata,
-            ]);
-        }
+        self::log($sLevel, $sMessage, \array_merge([
+            self::CONTEXT => (string)$logContext,
+        ], $aMetadata));
     }
 
     private static function getTrace(): array

@@ -11,6 +11,8 @@ services:
         arguments:
             $configCachePool: '@cache.app'
 
+    Leadin\SurvivalKitBundle\Logging\Processor\LogClassAndMethodProcessor: ~
+
     Leadin\SurvivalKitBundle\DependencyInjection\Facade:
         public: true
 

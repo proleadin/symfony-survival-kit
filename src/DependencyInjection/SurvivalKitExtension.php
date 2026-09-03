@@ -3,6 +3,7 @@
 namespace Leadin\SurvivalKitBundle\DependencyInjection;
 
 use Leadin\SurvivalKitBundle\DependencyInjection\Compiler\LoggerChannelPass;
+use Leadin\SurvivalKitBundle\Logging\Processor\LogClassAndMethodProcessor;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -111,6 +112,10 @@ class SurvivalKitExtension extends Extension
         if (!empty($aHandler['formatter'])) {
             $definition->addMethodCall('setFormatter', [new Reference($aHandler['formatter'])]);
         }
+
+        $definition->addMethodCall('pushProcessor', [
+            new Reference(LogClassAndMethodProcessor::class)
+        ]);
 
         $container->setDefinition($sHandlerId, $definition);
 

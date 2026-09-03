@@ -3,9 +3,6 @@
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
-
-use Monolog\Logger;
-use Monolog\Utils;
 use Monolog\Handler\StreamHandler as MonologStreamHandler;
 
 class StreamHandler extends MonologStreamHandler

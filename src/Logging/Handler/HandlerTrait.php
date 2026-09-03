@@ -5,10 +5,7 @@ namespace Leadin\SurvivalKitBundle\Logging\Handler;
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
-
 use Monolog\Logger as MonologLogger;
-use Monolog\Utils;
-use Monolog\Handler\StreamHandler as MonologStreamHandler;
 
 trait HandlerTrait
 {

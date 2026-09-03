@@ -3,7 +3,6 @@
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
-
 use Gelf\PublisherInterface;
 use Monolog\Handler\GelfHandler as MonologGelfHandler;
 use Monolog\Formatter\FormatterInterface;

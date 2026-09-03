@@ -6,6 +6,7 @@ namespace Leadin\SurvivalKitBundle\Logging\Processor;
 
 use Leadin\SurvivalKitBundle\Logging\Logger;
 use Leadin\SurvivalKitBundle\Reflection\ReflectionHelper;
+use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
@@ -14,21 +15,21 @@ final class LogClassAndMethodProcessor implements ProcessorInterface
     private const CONTEXT_SOURCE_KEY = 'source';
     private const APP_CHANNEL = 'app';
 
-    public function __invoke(array $aRecord): array
+    public function __invoke(LogRecord $logRecord): LogRecord
     {
         try {
-            if (($aRecord['channel'] ?? '') !== self::APP_CHANNEL) {
-                return $aRecord;
+            if ($logRecord->channel !== self::APP_CHANNEL) {
+                return $logRecord;
             }
 
             $aDebugBacktrace = \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
             $iLogCall = $this->findLogCallIndex($aDebugBacktrace);
 
             if (null === $iLogCall) {
-                $aRecord['message'] = '[Log caller not found] ' . $aRecord['message'];
-                $aRecord['context']['sskDebugBacktrace'] = $aDebugBacktrace;
-
-                return $aRecord;
+                return $logRecord->with(
+                    message: '[Log caller not found] ' . $logRecord->message,
+                    context: $logRecord->context + ['sskDebugBacktrace' => $aDebugBacktrace]
+                );
             }
 
             $aTraceOfLogCall = $aDebugBacktrace[$iLogCall];
@@ -43,23 +44,25 @@ final class LogClassAndMethodProcessor implements ProcessorInterface
             }
 
             $sLogFunction = $aTraceBeforeLogCall['function'] ?? '';
-            $aRecord['message'] = "[$sLogClass::$sLogFunction] " . $aRecord['message'];
-            $aRecord['context'] += [
-                self::CONTEXT_SOURCE_KEY => \sprintf(
-                    '%s:%s',
-                    $aTraceOfLogCall['file'] ?? '',
-                    $aTraceOfLogCall['line'] ?? ''
-                )
-            ];
+            return $logRecord->with(
+                message: "[$sLogClass::$sLogFunction] " . $logRecord->message,
+                context: $logRecord->context + [
+                    self::CONTEXT_SOURCE_KEY => \sprintf(
+                        '%s:%s',
+                        $aTraceOfLogCall['file'] ?? '',
+                        $aTraceOfLogCall['line'] ?? ''
+                    )
+                ]
+            );
         } catch (\Throwable $e) {
-            $aRecord['message'] = '[Error discovering log caller] ' . $aRecord['message'];
-            $aRecord['context'] += [
-                'sskErrorMessage' => $e->getMessage(),
-                'sskDebugBacktrace' => $aDebugBacktrace ?? [],
-            ];
+            return $logRecord->with(
+                message: '[Error discovering log caller] ' . $logRecord->message,
+                context: $logRecord->context + [
+                    'sskErrorMessage' => $e->getMessage(),
+                    'sskDebugBacktrace' => $aDebugBacktrace ?? [],
+                ]
+            );
         }
-
-        return $aRecord;
     }
 
     private function findLogCallIndex(array $aDebugBacktrace): ?int

@@ -5,6 +5,7 @@ namespace Leadin\SurvivalKitBundle\Logging\Handler;
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
+use Monolog\LogRecord;
 use Monolog\Logger as MonologLogger;
 
 trait HandlerTrait
@@ -15,24 +16,24 @@ trait HandlerTrait
     /**
      * Checks if debug logs activated by debug manager
      */
-    private function handleLog(array $aRecord): bool
+    private function handleLog(LogRecord $logRecord): bool
     {
-        if (parent::isHandling($aRecord)) {
-            return parent::handle($aRecord);
+        if (parent::isHandling($logRecord)) {
+            return parent::handle($logRecord);
         }
 
-        if (MonologLogger::DEBUG !== $aRecord['level'] || !isset($aRecord['context']['context'])) {
+        if (MonologLogger::DEBUG !== $logRecord->level->value || !isset($logRecord->context['context'])) {
             return false;
         }
 
         $this->loadDebugManagerConfig();
 
-        $sContext = $aRecord['context']['context'];
+        $sContext = $logRecord->context['context'];
         if (!isset($this->aConfig[$sContext]) || \time() > $this->aConfig[$sContext]) {
             return false;
         }
 
-        return parent::handle($aRecord);
+        return parent::handle($logRecord);
     }
 
     private function loadDebugManagerConfig()

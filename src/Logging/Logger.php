@@ -127,9 +127,7 @@ class Logger extends Facade
 
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::log($sLevel, $sMessage, \array_merge([
-            self::CONTEXT => (string)$logContext,
-        ], $aMetadata));
+        self::log($sLevel, $sMessage, \array_merge([self::CONTEXT => (string) $logContext], $aMetadata));
     }
 
     private static function getTrace(): array

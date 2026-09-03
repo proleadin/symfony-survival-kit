@@ -3,8 +3,7 @@
 namespace Leadin\SurvivalKitBundle\DependencyInjection;
 
 use Leadin\SurvivalKitBundle\DependencyInjection\Compiler\LoggerChannelPass;
-use Leadin\SurvivalKitBundle\Logging\Processor\LogClassAndMethodProcessor;
-
+use Leadin\SurvivalKitBundle\Logging\Processor\SourceProcessor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -114,7 +113,7 @@ class SurvivalKitExtension extends Extension
         }
 
         $definition->addMethodCall('pushProcessor', [
-            new Reference(LogClassAndMethodProcessor::class)
+            new Reference(SourceProcessor::class)
         ]);
 
         $container->setDefinition($sHandlerId, $definition);

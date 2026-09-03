@@ -10,7 +10,7 @@ use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 
-final class LogClassAndMethodProcessor implements ProcessorInterface
+final class SourceProcessor implements ProcessorInterface
 {
     private const CONTEXT_SOURCE_KEY = 'source';
     private const APP_CHANNEL = 'app';

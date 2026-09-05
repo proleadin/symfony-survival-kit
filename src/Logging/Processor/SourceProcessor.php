@@ -6,6 +6,7 @@ namespace Leadin\SurvivalKitBundle\Logging\Processor;
 
 use Leadin\SurvivalKitBundle\Logging\Logger;
 use Leadin\SurvivalKitBundle\Reflection\ReflectionHelper;
+use Monolog\Level;
 use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Symfony\Component\VarExporter\LazyObjectInterface;
@@ -22,7 +23,11 @@ final class SourceProcessor implements ProcessorInterface
                 return $logRecord;
             }
 
-            $aDebugBacktrace = \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
+            $bShouldAddTrace = $logRecord->level->value >= Level::Error->value && !isset($logRecord->context['trace']);
+            $iBacktraceOptions = $bShouldAddTrace
+                ? DEBUG_BACKTRACE_PROVIDE_OBJECT
+                : DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS;
+            $aDebugBacktrace = \debug_backtrace($iBacktraceOptions);
             $iLogCall = $this->findLogCallIndex($aDebugBacktrace);
 
             if (null === $iLogCall) {
@@ -44,15 +49,21 @@ final class SourceProcessor implements ProcessorInterface
             }
 
             $sLogFunction = $aTraceBeforeLogCall['function'] ?? '';
+            $aContext = $logRecord->context + [
+                self::CONTEXT_SOURCE_KEY => \sprintf(
+                    '%s:%s',
+                    $aTraceOfLogCall['file'] ?? '',
+                    $aTraceOfLogCall['line'] ?? ''
+                )
+            ];
+
+            if ($bShouldAddTrace) {
+                $aContext['trace'] = $this->formatTrace($aDebugBacktrace, $iLogCall);
+            }
+
             return $logRecord->with(
                 message: "[$sLogClass::$sLogFunction] " . $logRecord->message,
-                context: $logRecord->context + [
-                    self::CONTEXT_SOURCE_KEY => \sprintf(
-                        '%s:%s',
-                        $aTraceOfLogCall['file'] ?? '',
-                        $aTraceOfLogCall['line'] ?? ''
-                    )
-                ]
+                context: $aContext
             );
         } catch (\Throwable $e) {
             return $logRecord->with(
@@ -77,5 +88,16 @@ final class SourceProcessor implements ProcessorInterface
         }
 
         return null;
+    }
+
+    private function formatTrace(array $aDebugBacktrace, int $iLogCall): string
+    {
+        $reflection = new \ReflectionClass(\Exception::class);
+        /** @var \Exception $exception */
+        $exception = $reflection->newInstanceWithoutConstructor();
+        $property = $reflection->getProperty('trace');
+        $property->setValue($exception, \array_slice($aDebugBacktrace, $iLogCall + 1));
+
+        return $exception->getTraceAsString();
     }
 }

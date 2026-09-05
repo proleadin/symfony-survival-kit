@@ -71,7 +71,7 @@ class Logger extends Facade
      */
     public static function error(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::ERROR, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::ERROR, $sMessage, $logContext, $aMetadata);
     }
 
     /**
@@ -93,7 +93,7 @@ class Logger extends Facade
      */
     public static function critical(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::CRITICAL, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::CRITICAL, $sMessage, $logContext, $aMetadata);
     }
 
     /**
@@ -114,7 +114,7 @@ class Logger extends Facade
      */
     public static function alert(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::ALERT, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::ALERT, $sMessage, $logContext, $aMetadata);
     }
 
     /**
@@ -122,30 +122,11 @@ class Logger extends Facade
      */
     public static function emergency(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::EMERGENCY, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::EMERGENCY, $sMessage, $logContext, $aMetadata);
     }
 
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
         self::log($sLevel, $sMessage, \array_merge([self::CONTEXT => (string) $logContext], $aMetadata));
-    }
-
-    private static function getTrace(): array
-    {
-        $sTrace = '';
-        try {
-            $e = new \Exception();
-            $reflection = new \ReflectionClass($e);
-            $property = $reflection->getProperty('trace');
-            $property->setValue($e, \array_slice($e->getTrace(), 2));
-            $sTrace = $e->getTraceAsString();
-        } catch (\Throwable $e) {
-            self::log(self::ERROR, "Logger failed to get trace", [
-                self::CONTEXT => (string) LogContext::SSK_BUNDLE(),
-                "errorMessage" => $e->getMessage(),
-            ]);
-        }
-
-        return ['trace' => $sTrace];
     }
 }

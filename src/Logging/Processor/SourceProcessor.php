@@ -16,13 +16,45 @@ final class SourceProcessor implements ProcessorInterface
     private const CONTEXT_SOURCE_KEY = 'source';
     private const APP_CHANNEL = 'app';
 
+    /** @var \WeakMap<\DateTimeImmutable, array{message: string, context: array}> */
+    private \WeakMap $processedRecords;
+
+    public function __construct()
+    {
+        $this->processedRecords = new \WeakMap();
+    }
+
     public function __invoke(LogRecord $logRecord): LogRecord
     {
-        try {
-            if ($logRecord->channel !== self::APP_CHANNEL) {
-                return $logRecord;
-            }
+        if ($logRecord->channel !== self::APP_CHANNEL) {
+            return $logRecord;
+        }
 
+        if (isset($this->processedRecords[$logRecord->datetime])) {
+            $aProcessedRecord = $this->processedRecords[$logRecord->datetime];
+
+            return $logRecord->with(
+                message: $aProcessedRecord['message'],
+                context: $aProcessedRecord['context']
+            );
+        }
+
+        $processedRecord = $this->process($logRecord);
+
+        // Cache processed data to avoid reprocessing the same logging event for each handler.
+        // Monolog clones LogRecord for each handler, but the shallow clones share the same
+        // DateTimeImmutable instance, making it a stable weak key for one logging event.
+        $this->processedRecords[$logRecord->datetime] = [
+            'message' => $processedRecord->message,
+            'context' => $processedRecord->context,
+        ];
+
+        return $processedRecord;
+    }
+
+    private function process(LogRecord $logRecord): LogRecord
+    {
+        try {
             $bShouldAddTrace = $logRecord->level->value >= Level::Error->value && !isset($logRecord->context['trace']);
             $iBacktraceOptions = $bShouldAddTrace
                 ? DEBUG_BACKTRACE_PROVIDE_OBJECT

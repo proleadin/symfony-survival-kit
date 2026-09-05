@@ -112,6 +112,7 @@ class SurvivalKitExtension extends Extension
             $definition->addMethodCall('setFormatter', [new Reference($aHandler['formatter'])]);
         }
 
+        // Register the processor per handler so it runs only after the handler accepts the record
         $definition->addMethodCall('pushProcessor', [
             new Reference(SourceProcessor::class)
         ]);

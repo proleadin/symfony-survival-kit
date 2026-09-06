@@ -18,6 +18,8 @@ final class SourceProcessor implements ProcessorInterface
 
     /** @var \WeakMap<\DateTimeImmutable, array{message: string, context: array}> */
     private \WeakMap $processedRecords;
+    private ?\Exception $traceFormatter = null;
+    private ?\ReflectionProperty $traceProperty = null;
 
     public function __construct()
     {
@@ -124,12 +126,19 @@ final class SourceProcessor implements ProcessorInterface
 
     private function formatTrace(array $aDebugBacktrace, int $iLogCall): string
     {
-        $reflection = new \ReflectionClass(\Exception::class);
-        /** @var \Exception $exception */
-        $exception = $reflection->newInstanceWithoutConstructor();
-        $property = $reflection->getProperty('trace');
-        $property->setValue($exception, \array_slice($aDebugBacktrace, $iLogCall + 1));
+        // Reuse the formatter to avoid creating an Exception and capturing its backtrace each time.
+        // Initialize lazily because many processes may never handle a record that requires a trace.
+        if ($this->traceFormatter === null || $this->traceProperty === null) {
+            $this->traceFormatter = new \Exception();
+            $reflection = new \ReflectionClass($this->traceFormatter);
+            $this->traceProperty = $reflection->getProperty('trace');
+        }
 
-        return $exception->getTraceAsString();
+        $this->traceProperty->setValue(
+            $this->traceFormatter,
+            \array_slice($aDebugBacktrace, $iLogCall + 1)
+        );
+
+        return $this->traceFormatter->getTraceAsString();
     }
 }

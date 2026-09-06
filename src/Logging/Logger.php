@@ -80,12 +80,7 @@ class Logger extends Facade
      */
     public static function exception(string $sMessage, LogContext $logContext, \Throwable $e, array $aMetadata = []): void
     {
-        $aExceptionMetadata = [
-            'message' => $e->getMessage(),
-            'at' => "{$e->getFile()}:{$e->getLine()}",
-            'trace' => $e->getTraceAsString()
-        ];
-        self::error($sMessage, $logContext, \array_merge($aExceptionMetadata, $aMetadata));
+        self::error($sMessage, $logContext, self::addExceptionDetailsToMetadata($e, $aMetadata));
     }
 
     /**
@@ -101,12 +96,7 @@ class Logger extends Facade
      */
     public static function criticalException(string $sMessage, LogContext $logContext, \Throwable $e, array $aMetadata = []): void
     {
-        $aExceptionMetadata = [
-            'message' => $e->getMessage(),
-            'at' => "{$e->getFile()}:{$e->getLine()}",
-            'trace' => $e->getTraceAsString()
-        ];
-        self::critical($sMessage, $logContext, \array_merge($aExceptionMetadata, $aMetadata));
+        self::critical($sMessage, $logContext, self::addExceptionDetailsToMetadata($e, $aMetadata));
     }
 
     /**
@@ -128,5 +118,14 @@ class Logger extends Facade
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
         self::log($sLevel, $sMessage, \array_merge([self::CONTEXT => (string) $logContext], $aMetadata));
+    }
+
+    private static function addExceptionDetailsToMetadata(\Throwable $e, array $aMetadata): array
+    {
+        return $aMetadata + [
+            'error_message' => $e->getMessage(),
+            'error_at' => "{$e->getFile()}:{$e->getLine()}",
+            'error_trace' => $e->getTraceAsString(),
+        ];
     }
 }

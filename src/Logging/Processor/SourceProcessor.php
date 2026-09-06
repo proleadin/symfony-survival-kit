@@ -101,10 +101,10 @@ final class SourceProcessor implements ProcessorInterface
             );
         } catch (\Throwable $e) {
             return $logRecord->with(
-                message: '[Error discovering log caller] ' . $logRecord->message,
+                message: '[Error source processing] ' . $logRecord->message,
                 context: $logRecord->context + [
-                    'sskErrorMessage' => $e->getMessage(),
-                    'sskDebugBacktrace' => $aDebugBacktrace ?? [],
+                    'processingErrorMessage' => "'{$e->getMessage()}' at {$e->getFile()}:{$e->getLine()}",
+                    'processingDebugBacktrace' => $aDebugBacktrace ?? [],
                 ]
             );
         }

@@ -20,15 +20,15 @@ class StreamHandler extends MonologStreamHandler
     /**
      * {@inheritdoc}
      */
-    public function handle(LogRecord $logRecord): bool
+    public function handle(LogRecord $record): bool
     {
-        return $this->handleLog($logRecord);
+        return $this->handleLog($record);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isHandling(LogRecord $logRecord): bool
+    public function isHandling(LogRecord $record): bool
     {
         return true;
     }

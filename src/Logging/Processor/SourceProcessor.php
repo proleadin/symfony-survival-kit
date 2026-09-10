@@ -29,27 +29,27 @@ final class SourceProcessor implements ProcessorInterface
         $this->processedRecords = new \WeakMap();
     }
 
-    public function __invoke(LogRecord $logRecord): LogRecord
+    public function __invoke(LogRecord $record): LogRecord
     {
-        if ($logRecord->channel !== self::APP_CHANNEL) {
-            return $logRecord;
+        if ($record->channel !== self::APP_CHANNEL) {
+            return $record;
         }
 
-        if (isset($this->processedRecords[$logRecord->datetime])) {
-            $aProcessedRecord = $this->processedRecords[$logRecord->datetime];
+        if (isset($this->processedRecords[$record->datetime])) {
+            $aProcessedRecord = $this->processedRecords[$record->datetime];
 
-            return $logRecord->with(
+            return $record->with(
                 message: $aProcessedRecord['message'],
                 extra: $aProcessedRecord['extra'],
             );
         }
 
-        $processedRecord = $this->process($logRecord);
+        $processedRecord = $this->process($record);
 
         // Cache processed data to avoid reprocessing the same logging event for each handler.
         // Monolog clones LogRecord for each handler, but the shallow clones share the same
         // DateTimeImmutable instance, making it a stable weak key for one logging event.
-        $this->processedRecords[$logRecord->datetime] = [
+        $this->processedRecords[$record->datetime] = [
             'message' => $processedRecord->message,
             'extra' => $processedRecord->extra,
         ];
@@ -57,27 +57,27 @@ final class SourceProcessor implements ProcessorInterface
         return $processedRecord;
     }
 
-    private function process(LogRecord $logRecord): LogRecord
+    private function process(LogRecord $record): LogRecord
     {
         try {
-            $bShouldAddTrace = $logRecord->level->value >= Level::Error->value && !isset($logRecord->context['error_trace']);
+            $bShouldAddTrace = $record->level->value >= Level::Error->value && !isset($record->context['error_trace']);
             $iBacktraceOptions = $bShouldAddTrace
                 ? DEBUG_BACKTRACE_PROVIDE_OBJECT
                 : DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS;
             $aDebugBacktrace = \debug_backtrace($iBacktraceOptions);
-            $iLogCall = $this->findLogCallIndex($aDebugBacktrace);
+            $iLogCallIndex = $this->findLogCallIndex($aDebugBacktrace);
 
-            if (null === $iLogCall) {
-                return $logRecord->with(
-                    message: '[Log caller not found] ' . $logRecord->message,
-                    extra: $logRecord->extra + ['sskDebugBacktrace' => $aDebugBacktrace]
+            if (null === $iLogCallIndex) {
+                return $record->with(
+                    message: '[Log caller not found] ' . $record->message,
+                    extra: $record->extra + ['sskDebugBacktrace' => $aDebugBacktrace]
                 );
             }
 
-            $aTraceOfLogCall = $aDebugBacktrace[$iLogCall];
-            $aTraceBeforeLogCall = $aDebugBacktrace[$iLogCall + 1] ?? [];
+            $aTraceOfLogCall = $aDebugBacktrace[$iLogCallIndex];
+            $aTraceBeforeLogCall = $aDebugBacktrace[$iLogCallIndex + 1] ?? [];
 
-            $logRecord->extra += [
+            $record->extra += [
                 self::SOURCE_KEY => \sprintf(
                     '%s:%s',
                     $aTraceOfLogCall['file'] ?? '',
@@ -86,14 +86,14 @@ final class SourceProcessor implements ProcessorInterface
             ];
 
             if ($bShouldAddTrace) {
-                $logRecord->extra += ['trace' => $this->formatTrace($aDebugBacktrace, $iLogCall)];
+                $record->extra += ['trace' => $this->formatTrace($aDebugBacktrace, $iLogCallIndex)];
             }
 
-            return $logRecord->with(message: $this->buildClassMethodPrefix($aTraceBeforeLogCall) . $logRecord->message);
+            return $record->with(message: $this->buildClassMethodPrefix($aTraceBeforeLogCall) . $record->message);
         } catch (\Throwable $e) {
-            return $logRecord->with(
-                message: '[Error source processing] ' . $logRecord->message,
-                extra: $logRecord->extra + [
+            return $record->with(
+                message: '[Error source processing] ' . $record->message,
+                extra: $record->extra + [
                     'sskErrorMessage' => "'{$e->getMessage()}' at {$e->getFile()}:{$e->getLine()}",
                     'sskDebugBacktrace' => $aDebugBacktrace ?? [],
                 ]
@@ -130,7 +130,7 @@ final class SourceProcessor implements ProcessorInterface
         return "[$sLogClass::$sLogFunction] ";
     }
 
-    private function formatTrace(array $aDebugBacktrace, int $iLogCall): string
+    private function formatTrace(array $aDebugBacktrace, int $iLogCallIndex): string
     {
         // Reuse the formatter to avoid creating an Exception and capturing its backtrace each time.
         // Initialize lazily because many processes may never handle a record that requires a trace.
@@ -142,7 +142,7 @@ final class SourceProcessor implements ProcessorInterface
 
         $this->traceProperty->setValue(
             $this->traceFormatter,
-            \array_slice($aDebugBacktrace, $iLogCall + 1)
+            \array_slice($aDebugBacktrace, $iLogCallIndex + 1)
         );
 
         return $this->traceFormatter->getTraceAsString();

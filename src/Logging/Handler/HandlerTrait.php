@@ -16,24 +16,24 @@ trait HandlerTrait
     /**
      * Checks if debug logs activated by debug manager
      */
-    private function handleLog(LogRecord $logRecord): bool
+    private function handleLog(LogRecord $record): bool
     {
-        if (parent::isHandling($logRecord)) {
-            return parent::handle($logRecord);
+        if (parent::isHandling($record)) {
+            return parent::handle($record);
         }
 
-        if (Level::Debug->value !== $logRecord->level->value || !isset($logRecord->context['context'])) {
+        if (Level::Debug->value !== $record->level->value || !isset($record->context['context'])) {
             return false;
         }
 
         $this->loadDebugManagerConfig();
 
-        $sContext = $logRecord->context['context'];
+        $sContext = $record->context['context'];
         if (!isset($this->aConfig[$sContext]) || \time() > $this->aConfig[$sContext]) {
             return false;
         }
 
-        return parent::handle($logRecord);
+        return parent::handle($record);
     }
 
     private function loadDebugManagerConfig()

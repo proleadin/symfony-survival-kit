@@ -6,7 +6,7 @@ use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
 use Leadin\SurvivalKitBundle\Logging\LogContext;
 use Leadin\SurvivalKitBundle\Logging\Logger;
 use Monolog\LogRecord;
-use Monolog\Logger as MonologLogger;
+use Monolog\Level;
 
 trait HandlerTrait
 {
@@ -22,7 +22,7 @@ trait HandlerTrait
             return parent::handle($logRecord);
         }
 
-        if (MonologLogger::DEBUG !== $logRecord->level->value || !isset($logRecord->context['context'])) {
+        if (Level::Debug->value !== $logRecord->level->value || !isset($logRecord->context['context'])) {
             return false;
         }
 

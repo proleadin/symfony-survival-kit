@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Leadin\SurvivalKitBundle\Logging;
 
 use Leadin\SurvivalKitBundle\DependencyInjection\Facade;
-use Leadin\SurvivalKitBundle\Reflection\ReflectionHelper;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * LoggerInterface service facade. Allows calling Logger statically.
@@ -15,8 +13,6 @@ use Symfony\Component\VarExporter\LazyObjectInterface;
 class Logger extends Facade
 {
     private const CONTEXT   = 'context';
-    private const SOURCE    = 'source';
-
     private const EMERGENCY = 'emergency';
     private const ALERT     = 'alert';
     private const CRITICAL  = 'critical';
@@ -75,7 +71,7 @@ class Logger extends Facade
      */
     public static function error(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::ERROR, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::ERROR, $sMessage, $logContext, $aMetadata);
     }
 
     /**
@@ -84,12 +80,7 @@ class Logger extends Facade
      */
     public static function exception(string $sMessage, LogContext $logContext, \Throwable $e, array $aMetadata = []): void
     {
-        $aExceptionMetadata = [
-            'message' => $e->getMessage(),
-            'at' => "{$e->getFile()}:{$e->getLine()}",
-            'trace' => $e->getTraceAsString()
-        ];
-        self::error($sMessage, $logContext, \array_merge($aExceptionMetadata, $aMetadata));
+        self::error($sMessage, $logContext, self::addExceptionDetailsToMetadata($e, $aMetadata));
     }
 
     /**
@@ -97,7 +88,7 @@ class Logger extends Facade
      */
     public static function critical(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::CRITICAL, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::CRITICAL, $sMessage, $logContext, $aMetadata);
     }
 
     /**
@@ -105,12 +96,7 @@ class Logger extends Facade
      */
     public static function criticalException(string $sMessage, LogContext $logContext, \Throwable $e, array $aMetadata = []): void
     {
-        $aExceptionMetadata = [
-            'message' => $e->getMessage(),
-            'at' => "{$e->getFile()}:{$e->getLine()}",
-            'trace' => $e->getTraceAsString()
-        ];
-        self::critical($sMessage, $logContext, \array_merge($aExceptionMetadata, $aMetadata));
+        self::critical($sMessage, $logContext, self::addExceptionDetailsToMetadata($e, $aMetadata));
     }
 
     /**
@@ -118,7 +104,7 @@ class Logger extends Facade
      */
     public static function alert(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::ALERT, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::ALERT, $sMessage, $logContext, $aMetadata);
     }
 
     /**
@@ -126,60 +112,20 @@ class Logger extends Facade
      */
     public static function emergency(string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        self::logContext(self::EMERGENCY, $sMessage, $logContext, $aMetadata + self::getTrace());
+        self::logContext(self::EMERGENCY, $sMessage, $logContext, $aMetadata);
     }
 
     private static function logContext(string $sLevel, string $sMessage, LogContext $logContext, array $aMetadata = []): void
     {
-        try {
-            $aDebugBacktrace = \array_filter(
-                \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
-                static fn(array $aTrace) => isset($aTrace["file"]) && $aTrace["file"] !== __FILE__
-            );
-
-            $aTraceOfLogCall = \array_shift($aDebugBacktrace);
-            $aTraceBeforeLogCall = \array_shift($aDebugBacktrace);
-
-            $sLogClass = '';
-            $sLogFunction = $aTraceBeforeLogCall["function"] ?? '';
-            if (isset($aTraceBeforeLogCall["object"])) {
-                $sLogClass = $aTraceBeforeLogCall["object"] instanceof LazyObjectInterface
-                    ? ReflectionHelper::getClassShortName(\get_parent_class($aTraceBeforeLogCall["object"]) ?: $aTraceBeforeLogCall["object"])
-                    : ReflectionHelper::getClassShortName($aTraceBeforeLogCall["object"]);
-            }
-
-            self::log($sLevel, "[$sLogClass::$sLogFunction] " . $sMessage, \array_merge([
-                self::CONTEXT => (string)$logContext,
-                self::SOURCE => \sprintf("%s:%s", $aTraceOfLogCall["file"] ?? "", $aTraceOfLogCall["line"] ?? "")
-            ], $aMetadata));
-        } catch (\Throwable $e) {
-            self::log(self::ERROR, "Logger failed to add log", [
-                self::CONTEXT => (string) LogContext::SSK_BUNDLE(),
-                "errorMessage" => $e->getMessage(),
-                "debugBacktrace" => $aDebugBacktrace ?? \debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS),
-                "logLevel" => $sLevel,
-                "logMessage" => $sMessage,
-                "logMetadata" => $aMetadata,
-            ]);
-        }
+        self::log($sLevel, $sMessage, \array_merge([self::CONTEXT => (string) $logContext], $aMetadata));
     }
 
-    private static function getTrace(): array
+    private static function addExceptionDetailsToMetadata(\Throwable $e, array $aMetadata): array
     {
-        $sTrace = '';
-        try {
-            $e = new \Exception();
-            $reflection = new \ReflectionClass($e);
-            $property = $reflection->getProperty('trace');
-            $property->setValue($e, \array_slice($e->getTrace(), 2));
-            $sTrace = $e->getTraceAsString();
-        } catch (\Throwable $e) {
-            self::log(self::ERROR, "Logger failed to get trace", [
-                self::CONTEXT => (string) LogContext::SSK_BUNDLE(),
-                "errorMessage" => $e->getMessage(),
-            ]);
-        }
-
-        return ['trace' => $sTrace];
+        return $aMetadata + [
+            'error_message' => $e->getMessage(),
+            'error_at' => "{$e->getFile()}:{$e->getLine()}",
+            'error_trace' => $e->getTraceAsString(),
+        ];
     }
 }

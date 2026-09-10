@@ -3,11 +3,11 @@
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
-
 use Gelf\PublisherInterface;
 use Monolog\Handler\GelfHandler as MonologGelfHandler;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\GelfMessageFormatter;
+use Monolog\LogRecord;
 
 class GelfHandler extends MonologGelfHandler
 {
@@ -30,15 +30,15 @@ class GelfHandler extends MonologGelfHandler
     /**
      * {@inheritdoc}
      */
-    public function handle(array $aRecord): bool
+    public function handle(LogRecord $record): bool
     {
-        return $this->handleLog($aRecord);
+        return $this->handleLog($record);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isHandling(array $aRecord): bool
+    public function isHandling(LogRecord $record): bool
     {
         return true;
     }

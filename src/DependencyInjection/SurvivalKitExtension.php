@@ -3,7 +3,7 @@
 namespace Leadin\SurvivalKitBundle\DependencyInjection;
 
 use Leadin\SurvivalKitBundle\DependencyInjection\Compiler\LoggerChannelPass;
-
+use Leadin\SurvivalKitBundle\Logging\Processor\SourceProcessor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -111,6 +111,11 @@ class SurvivalKitExtension extends Extension
         if (!empty($aHandler['formatter'])) {
             $definition->addMethodCall('setFormatter', [new Reference($aHandler['formatter'])]);
         }
+
+        // Attach to each handler, not to monolog.logger, to enrich only records accepted by a handler.
+        $definition->addMethodCall('pushProcessor', [
+            new Reference(SourceProcessor::class)
+        ]);
 
         $container->setDefinition($sHandlerId, $definition);
 

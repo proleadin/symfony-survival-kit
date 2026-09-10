@@ -3,10 +3,8 @@
 namespace Leadin\SurvivalKitBundle\Logging\Handler;
 
 use Leadin\SurvivalKitBundle\Logging\DebugManagerConfigStorage;
-
-use Monolog\Logger;
-use Monolog\Utils;
 use Monolog\Handler\StreamHandler as MonologStreamHandler;
+use Monolog\LogRecord;
 
 class StreamHandler extends MonologStreamHandler
 {
@@ -22,15 +20,15 @@ class StreamHandler extends MonologStreamHandler
     /**
      * {@inheritdoc}
      */
-    public function handle(array $aRecord): bool
+    public function handle(LogRecord $record): bool
     {
-        return $this->handleLog($aRecord);
+        return $this->handleLog($record);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isHandling(array $aRecord): bool
+    public function isHandling(LogRecord $record): bool
     {
         return true;
     }

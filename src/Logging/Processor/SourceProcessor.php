@@ -17,6 +17,7 @@ use Symfony\Component\VarExporter\LazyObjectInterface;
 final class SourceProcessor implements ProcessorInterface
 {
     private const SOURCE_KEY = 'source';
+    private const LOG_CONTEXT_KEY = 'context';
     private const APP_CHANNEL = 'app';
 
     /** @var \WeakMap<\DateTimeImmutable, array{message: string, extra: array}> */
@@ -31,7 +32,10 @@ final class SourceProcessor implements ProcessorInterface
 
     public function __invoke(LogRecord $record): LogRecord
     {
-        if ($record->channel !== self::APP_CHANNEL) {
+        if (
+            $record->channel !== self::APP_CHANNEL
+            || !isset($record->context[self::LOG_CONTEXT_KEY])
+        ) {
             return $record;
         }
 
@@ -68,10 +72,7 @@ final class SourceProcessor implements ProcessorInterface
             $iLogCallIndex = $this->findLogCallIndex($aDebugBacktrace);
 
             if (null === $iLogCallIndex) {
-                return $record->with(
-                    message: '[Log caller not found] ' . $record->message,
-                    extra: $record->extra + ['sskDebugBacktrace' => $aDebugBacktrace]
-                );
+                return $record;
             }
 
             $aTraceOfLogCall = $aDebugBacktrace[$iLogCallIndex];

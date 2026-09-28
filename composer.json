@@ -5,6 +5,7 @@
     "description": "Symfony survival kit",
     "require": {
         "php": "^8.1",
+        "graylog2/gelf-php": "^2.0",
         "guzzlehttp/guzzle": "^7.4.5",
         "monolog/monolog": "^3.0",
         "myclabs/php-enum": "^1.7",
